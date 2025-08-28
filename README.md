@@ -1,75 +1,43 @@
-# hooky
+# Hooky - Next.js Frontend
 
-**hooky** is a lightweight webhook dispatch service built with **Rust** and **Remix**.  
-It provides a fast, reliable backend for receiving and dispatching webhooks, and a modern web frontend for managing endpoints and events.
+This is the Next.js 14 frontend for Hooky, a reliable webhook delivery service.
 
----
+## 🚀 Getting Started
 
-## 🚀 Features
-- **Rust backend** – high-performance and reliable webhook handling.
-- **Remix frontend** – user-friendly dashboard for managing webhooks and deliveries.
-- **Webhook dispatching** – receive, queue, and deliver events to configured targets.
-- **Extensible design** – easily add custom logic for authentication, retries, and filtering.
+### 1. Install Dependencies
 
----
+First, install the project dependencies using npm:
 
-## 🛠 Tech Stack
-- **Backend:** Rust (`axum`, `tokio`, `serde`, etc.)
-- **Frontend:** Remix (React, TypeScript)
-- **Database:** (Optional) PostgreSQL or SQLite for storing webhook configurations and delivery logs.
-- **Message handling:** Async dispatch with retries.
-
----
-
-## 📦 Getting Started
-
-### Prerequisites
-- [Rust](https://www.rust-lang.org/tools/install) (latest stable)
-- [Node.js](https://nodejs.org/) (LTS recommended)
-- [pnpm](https://pnpm.io/) or npm/yarn
-
-### Clone the repo
 ```bash
-git clone https://github.com/yourusername/hooky.git
-cd hooky
+npm install
 ```
 
-### Backend Setup
-```bash
-cd backend
-cargo run
-```
-This will start the webhook server on `http://localhost:3000`.
+### 2. Add Shadcn UI Components
 
-### Frontend Setup
+This project uses `shadcn/ui`. You'll need to add the components used in the homepage. Run the following commands:
+
 ```bash
-cd frontend
-pnpm install
+npx shadcn-ui@latest add button
+npx shadcn-ui@latest add card
+```
+
+This will add the necessary component files to `/components/ui`.
+
+### 3. Run the Development Server
+
+Now, you can run the development server:
+
+```bash
 pnpm dev
 ```
-This will start the Remix dev server on `http://localhost:5173`.
 
----
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## 📖 Usage
-1. Register webhook targets in the dashboard.
-2. Send events to `POST /hooks/:id`.
-3. Monitor delivery attempts and retry failed requests from the UI.
+## 🛠 Tech Stack
 
----
-
-## 📚 Roadmap
-- [ ] Authentication & API keys  
-- [ ] Delivery retries with backoff  
-- [ ] Event filtering and transformation  
-- [ ] Multi-tenant support  
-
----
-
-## 🤝 Contributing
-Contributions are welcome! Please open an issue or PR.
-
----
-
-## 📜 License
-MIT
+- **Framework:** [Next.js 14](https://nextjs.org/) (with App Router)
+- **Language:** [TypeScript](https://www.typescriptlang.org/)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **UI Components:** [shadcn/ui](https://ui.shadcn.com/)
+- **Icons:** [Lucide React](https://lucide.dev/guide/packages/lucide-react)
+- **Animations:** [Framer Motion](https://www.framer.com/motion/)ion/)
