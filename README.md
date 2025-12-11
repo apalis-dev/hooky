@@ -1,13 +1,13 @@
 # hooky
 
-**hooky** is a lightweight webhook dispatch service built with **Rust** and **Remix**.  
+**hooky** is an [apalis](https://github.com/apalis-dev/apalis) based webhook dispatch service built with **Rust** and **Next.js**.  
 It provides a fast, reliable backend for receiving and dispatching webhooks, and a modern web frontend for managing endpoints and events.
 
 ---
 
 ## 🚀 Features
 - **Rust backend** – high-performance and reliable webhook handling.
-- **Remix frontend** – user-friendly dashboard for managing webhooks and deliveries.
+- **Nextjs frontend** – user-friendly dashboard for managing webhooks and deliveries.
 - **Webhook dispatching** – receive, queue, and deliver events to configured targets.
 - **Extensible design** – easily add custom logic for authentication, retries, and filtering.
 
@@ -15,8 +15,8 @@ It provides a fast, reliable backend for receiving and dispatching webhooks, and
 
 ## 🛠 Tech Stack
 - **Backend:** Rust (`axum`, `tokio`, `serde`, etc.)
-- **Frontend:** Remix (React, TypeScript)
-- **Database:** (Optional) PostgreSQL or SQLite for storing webhook configurations and delivery logs.
+- **Frontend:** Nextjs (React, TypeScript)
+- **Database:** SQLite for storing webhook configurations and delivery logs.
 - **Message handling:** Async dispatch with retries.
 
 ---
@@ -30,7 +30,7 @@ It provides a fast, reliable backend for receiving and dispatching webhooks, and
 
 ### Clone the repo
 ```bash
-git clone https://github.com/yourusername/hooky.git
+git clone https://github.com/apalis-dev/hooky.git
 cd hooky
 ```
 
@@ -47,7 +47,7 @@ cd frontend
 pnpm install
 pnpm dev
 ```
-This will start the Remix dev server on `http://localhost:5173`.
+This will start the Nextjs dev server on `http://localhost:5173`.
 
 ---
 
@@ -62,7 +62,6 @@ This will start the Remix dev server on `http://localhost:5173`.
 - [ ] Authentication & API keys  
 - [ ] Delivery retries with backoff  
 - [ ] Event filtering and transformation  
-- [ ] Multi-tenant support  
 
 ---
 
