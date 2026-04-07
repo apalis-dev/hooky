@@ -1,73 +1,78 @@
-import { Activity, Bolt, Clock, FileText, Settings, X } from "lucide-react";
+import { NavLink, useLocation } from "react-router";
+import { Activity, Bolt, Clock, FileText, Settings } from "lucide-react";
+import {
+	Sidebar,
+	SidebarContent,
+	SidebarGroup,
+	SidebarGroupContent,
+	SidebarGroupLabel,
+	SidebarHeader,
+	SidebarMenu,
+	SidebarMenuButton,
+	SidebarMenuItem,
+	SidebarRail,
+} from "@/components/ui/sidebar";
 
 const navItems = [
-	{ id: "overview", label: "Overview", icon: Activity },
-	{ id: "webhooks", label: "Webhooks", icon: Bolt },
-	{ id: "deliveries", label: "Deliveries", icon: Clock },
-	{ id: "logs", label: "Logs", icon: FileText },
-	{ id: "settings", label: "Settings", icon: Settings },
+	{ to: "/", label: "Overview", icon: Activity },
+	{ to: "/webhooks", label: "Webhooks", icon: Bolt },
+	{ to: "/deliveries", label: "Deliveries", icon: Clock },
+	{ to: "/logs", label: "Logs", icon: FileText },
+	{ to: "/settings", label: "Settings", icon: Settings },
 ];
 
-interface SidebarProps {
-	currentPage: string;
-	onPageChange: (page: string) => void;
-	isOpen: boolean;
-	onToggle: (open: boolean) => void;
-}
+export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
+	const { pathname } = useLocation();
 
-export function Sidebar({
-	currentPage,
-	onPageChange,
-	isOpen,
-	onToggle,
-}: SidebarProps) {
 	return (
-		<>
-			<div
-				className={`fixed inset-0 bg-black/50 z-40 sm:hidden ${isOpen ? "" : "hidden"}`}
-			/>
-
-			<aside
-				className={`fixed sm:static inset-y-0 left-0 w-64 border-r border-border bg-sidebar transform transition-transform duration-300 z-50 sm:z-0 ${
-					isOpen ? "translate-x-0" : "-translate-x-full sm:translate-x-0"
-				}`}
-			>
-				<div className="flex items-center justify-between p-6 border-b border-border">
-					<h1 className="text-lg font-semibold text-sidebar-foreground">
-						Webhooks
-					</h1>
-					<button
-						onClick={() => onToggle(false)}
-						className="sm:hidden p-1 hover:bg-sidebar-accent rounded transition-colors"
-					>
-						<X className="w-5 h-5" />
-					</button>
-				</div>
-
-				<nav className="p-4 space-y-2">
-					{navItems.map((item) => {
-						const Icon = item.icon;
-						const isActive = currentPage === item.id;
-						return (
-							<button
-								key={item.id}
-								onClick={() => {
-									onPageChange(item.id);
-									onToggle(false);
-								}}
-								className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-									isActive
-										? "bg-sidebar-primary text-sidebar-primary-foreground"
-										: "text-sidebar-foreground hover:bg-sidebar-accent"
-								}`}
-							>
-								<Icon className="w-4 h-4" />
-								{item.label}
-							</button>
-						);
-					})}
-				</nav>
-			</aside>
-		</>
+		<Sidebar collapsible="icon" {...props}>
+			<SidebarHeader>
+				<SidebarMenu>
+					<SidebarMenuItem>
+						<SidebarMenuButton size="lg" asChild>
+							<NavLink to="/" end>
+								<div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+									<Bolt className="size-4" />
+								</div>
+								<div className="grid flex-1 text-left text-sm leading-tight">
+									<span className="truncate font-semibold">Webhooks</span>
+									<span className="truncate text-xs">Dashboard</span>
+								</div>
+							</NavLink>
+						</SidebarMenuButton>
+					</SidebarMenuItem>
+				</SidebarMenu>
+			</SidebarHeader>
+			<SidebarContent>
+				<SidebarGroup>
+					<SidebarGroupLabel>Navigation</SidebarGroupLabel>
+					<SidebarGroupContent>
+						<SidebarMenu>
+							{navItems.map((item) => {
+								const isActive =
+									item.to === "/"
+										? pathname === "/"
+										: pathname.startsWith(item.to);
+								return (
+									<SidebarMenuItem key={item.to}>
+										<SidebarMenuButton
+											asChild
+											isActive={isActive}
+											tooltip={item.label}
+										>
+											<NavLink to={item.to} end={item.to === "/"}>
+												<item.icon />
+												<span>{item.label}</span>
+											</NavLink>
+										</SidebarMenuButton>
+									</SidebarMenuItem>
+								);
+							})}
+						</SidebarMenu>
+					</SidebarGroupContent>
+				</SidebarGroup>
+			</SidebarContent>
+			<SidebarRail />
+		</Sidebar>
 	);
 }
