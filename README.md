@@ -39,15 +39,15 @@ cd hooky
 cd backend
 cargo run
 ```
-This will start the webhook server on `http://localhost:3000`.
+This will start the webhook server on `http://localhost:8080`.
 
 ### Frontend Setup
 ```bash
-cd frontend
+cd web
 pnpm install
 pnpm dev
 ```
-This will start the Nextjs dev server on `http://localhost:5173`.
+This will start the Nextjs dev server on `http://localhost:3000`.
 
 ---
 
