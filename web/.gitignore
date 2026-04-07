@@ -1,7 +1,9 @@
-/target
-/node_modules
-/dist
-hooky.db
+.next
+node_modules
+out
+build
+dist
+*.tsbuildinfo
 .env
 .env.local
 .env.development
