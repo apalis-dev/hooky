@@ -1,5 +1,20 @@
 import { MoreVertical, Edit, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table";
 
 const webhooks = [
 	{
@@ -33,86 +48,66 @@ const webhooks = [
 ];
 
 export function WebhookTable() {
-	const [openMenu, setOpenMenu] = useState<number | null>(null);
-
 	return (
-		<div className="overflow-x-auto">
-			<table className="w-full text-sm">
-				<thead>
-					<tr className="border-b border-border bg-muted/30">
-						<th className="px-6 py-3 text-left font-semibold text-foreground">
-							Name
-						</th>
-						<th className="px-6 py-3 text-left font-semibold text-foreground">
-							Target URL
-						</th>
-						<th className="px-6 py-3 text-left font-semibold text-foreground">
-							Status
-						</th>
-						<th className="px-6 py-3 text-left font-semibold text-foreground">
-							Created At
-						</th>
-						<th className="px-6 py-3 text-right font-semibold text-foreground">
-							Actions
-						</th>
-					</tr>
-				</thead>
-				<tbody>
-					{webhooks.map((webhook, idx) => (
-						<tr
-							key={webhook.id}
-							className={`border-b border-border hover:bg-muted/30 transition-colors ${
-								idx % 2 === 0 ? "bg-muted/10" : ""
-							}`}
-						>
-							<td className="px-6 py-4 font-medium text-foreground">
-								{webhook.name}
-							</td>
-							<td className="px-6 py-4 text-muted-foreground truncate max-w-xs">
-								{webhook.url}
-							</td>
-							<td className="px-6 py-4">
-								<span
-									className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-										webhook.status === "active"
-											? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-200"
-											: "bg-gray-100 text-gray-800 dark:bg-gray-950 dark:text-gray-200"
-									}`}
-								>
-									{webhook.status === "active" ? "● " : "○ "}
-									{webhook.status.charAt(0).toUpperCase() +
-										webhook.status.slice(1)}
-								</span>
-							</td>
-							<td className="px-6 py-4 text-muted-foreground">
-								{webhook.createdAt}
-							</td>
-							<td className="px-6 py-4 text-right relative">
-								<button
-									onClick={() =>
-										setOpenMenu(openMenu === webhook.id ? null : webhook.id)
-									}
-									className="p-1 hover:bg-muted rounded transition-colors"
-								>
-									<MoreVertical className="w-4 h-4 text-muted-foreground" />
-								</button>
-								{openMenu === webhook.id && (
-									<div className="absolute right-0 top-full mt-1 bg-card border border-border rounded-lg shadow-lg py-1 z-10">
-										<button className="w-full flex items-center gap-2 px-4 py-2 hover:bg-muted text-sm text-foreground">
-											<Edit className="w-4 h-4" />
-											Edit
-										</button>
-										<button className="w-full flex items-center gap-2 px-4 py-2 hover:bg-muted text-sm text-destructive">
-											<Trash2 className="w-4 h-4" />
-											Delete
-										</button>
-									</div>
-								)}
-							</td>
-						</tr>
-					))}
-				</tbody>
-			</table>
-		</div>
+		<Table>
+			<TableHeader>
+				<TableRow>
+					<TableHead>Name</TableHead>
+					<TableHead>Target URL</TableHead>
+					<TableHead>Status</TableHead>
+					<TableHead>Created At</TableHead>
+					<TableHead className="text-right">Actions</TableHead>
+				</TableRow>
+			</TableHeader>
+			<TableBody>
+				{webhooks.map((webhook) => (
+					<TableRow key={webhook.id}>
+						<TableCell className="font-medium">{webhook.name}</TableCell>
+						<TableCell className="max-w-xs truncate text-muted-foreground">
+							{webhook.url}
+						</TableCell>
+						<TableCell>
+							<Badge
+								variant={
+									webhook.status === "active" ? "secondary" : "outline"
+								}
+								className={
+									webhook.status === "active"
+										? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-200"
+										: ""
+								}
+							>
+								{webhook.status === "active" ? "● " : "○ "}
+								{webhook.status.charAt(0).toUpperCase() +
+									webhook.status.slice(1)}
+							</Badge>
+						</TableCell>
+						<TableCell className="text-muted-foreground">
+							{webhook.createdAt}
+						</TableCell>
+						<TableCell className="text-right">
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<Button variant="ghost" size="icon" className="h-8 w-8">
+										<MoreVertical className="h-4 w-4" />
+										<span className="sr-only">Open menu</span>
+									</Button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align="end">
+									<DropdownMenuItem>
+										<Edit className="h-4 w-4" />
+										Edit
+									</DropdownMenuItem>
+									<DropdownMenuItem variant="destructive">
+										<Trash2 className="h-4 w-4" />
+										Delete
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
+						</TableCell>
+					</TableRow>
+				))}
+			</TableBody>
+		</Table>
 	);
 }

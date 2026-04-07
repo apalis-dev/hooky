@@ -1,29 +1,31 @@
-import { X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+	Sheet,
+	SheetContent,
+	SheetHeader,
+	SheetTitle,
+} from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
 
 interface DeliveryDrawerProps {
 	delivery: any;
-	onClose: () => void;
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
 }
 
-export function DeliveryDrawer({ delivery, onClose }: DeliveryDrawerProps) {
+export function DeliveryDrawer({
+	delivery,
+	open,
+	onOpenChange,
+}: DeliveryDrawerProps) {
 	return (
-		<div className="fixed inset-0 z-50">
-			<div className="absolute inset-0 bg-black/50" />
-			<div className="absolute right-0 top-0 h-screen w-full max-w-md bg-card border-l border-border shadow-lg overflow-y-auto">
-				<div className="sticky top-0 border-b border-border p-6 flex items-center justify-between bg-card">
-					<h2 className="text-lg font-semibold text-foreground">
-						Delivery Details
-					</h2>
-					<Button
-						onClick={onClose}
-						className="p-1 hover:bg-muted rounded transition-colors"
-					>
-						<X className="w-5 h-5" />
-					</Button>
-				</div>
+		<Sheet open={open} onOpenChange={onOpenChange}>
+			<SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+				<SheetHeader>
+					<SheetTitle>Delivery Details</SheetTitle>
+				</SheetHeader>
 
-				<div className="p-6 space-y-6">
+				<div className="space-y-6 p-6">
 					<div>
 						<h3 className="text-sm font-semibold text-foreground mb-3">
 							Event Information
@@ -35,7 +37,9 @@ export function DeliveryDrawer({ delivery, onClose }: DeliveryDrawerProps) {
 							</div>
 							<div>
 								<p className="text-muted-foreground">Status Code</p>
-								<p className="text-foreground font-medium">{delivery.status}</p>
+								<Badge variant="outline" className="font-mono">
+									{delivery.status}
+								</Badge>
 							</div>
 							<div>
 								<p className="text-muted-foreground">Duration</p>
@@ -51,11 +55,14 @@ export function DeliveryDrawer({ delivery, onClose }: DeliveryDrawerProps) {
 							</div>
 						</div>
 					</div>
+
+					<Separator />
+
 					<div>
 						<h3 className="text-sm font-semibold text-foreground mb-3">
 							Request Payload
 						</h3>
-						<pre className="bg-input border border-border rounded p-3 text-xs overflow-x-auto text-muted-foreground">
+						<pre className="bg-muted border border-border rounded-md p-3 text-xs overflow-x-auto text-muted-foreground">
 							{`{
   "id": "evt_123456",
   "event": "${delivery.event}",
@@ -67,24 +74,28 @@ export function DeliveryDrawer({ delivery, onClose }: DeliveryDrawerProps) {
 }`}
 						</pre>
 					</div>
+
 					<div>
 						<h3 className="text-sm font-semibold text-foreground mb-3">
 							Response Payload
 						</h3>
-						<pre className="bg-input border border-border rounded p-3 text-xs overflow-x-auto text-muted-foreground">
+						<pre className="bg-muted border border-border rounded-md p-3 text-xs overflow-x-auto text-muted-foreground">
 							{`{
   "received": true,
   "id": "evt_123456"
 }`}
 						</pre>
 					</div>
+
+					<Separator />
+
 					<div>
 						<h3 className="text-sm font-semibold text-foreground mb-3">
 							Retries
 						</h3>
 						<div className="space-y-2 text-sm">
-							<div className="flex items-center gap-3 p-3 bg-input rounded border border-border">
-								<div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
+							<div className="flex items-center gap-3 rounded-md border border-border bg-muted/50 p-3">
+								<div className="h-2 w-2 shrink-0 rounded-full bg-green-500" />
 								<div>
 									<p className="text-foreground font-medium">
 										Attempt 1 - Success
@@ -97,7 +108,7 @@ export function DeliveryDrawer({ delivery, onClose }: DeliveryDrawerProps) {
 						</div>
 					</div>
 				</div>
-			</div>
-		</div>
+			</SheetContent>
+		</Sheet>
 	);
 }
