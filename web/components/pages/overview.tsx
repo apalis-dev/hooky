@@ -1,4 +1,3 @@
-"use client"
 import { CheckCircle, Zap } from "lucide-react"
 import { StatCard } from "../stat-card"
 import { RecentEventsTable } from "../recent-events-table"

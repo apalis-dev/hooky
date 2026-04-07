@@ -1,4 +1,3 @@
-"use client"
 
 import { Eye, EyeOff, Copy, RotateCw } from "lucide-react"
 import { useState } from "react"
