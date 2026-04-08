@@ -19,7 +19,7 @@ import type {
   HealthResponse,
   PaginationParams,
   ApiError,
-} from "../lib/api";
+} from "../lib/types";
 
 export const queryKeys = {
   health: ["health"] as const,
