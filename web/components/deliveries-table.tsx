@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+import { Inbox } from "lucide-react";
 import {
 	Table,
 	TableBody,
@@ -56,51 +56,85 @@ interface DeliveriesTableProps {
 }
 
 export function DeliveriesTable({ onRowClick }: DeliveriesTableProps) {
+	if (deliveries.length === 0) {
+		return (
+			<div className="flex flex-col items-center justify-center py-16 text-center">
+				<Inbox
+					className="h-10 w-10 text-muted-foreground/40 mb-3"
+					strokeWidth={1.5}
+				/>
+				<h3 className="text-sm font-medium text-foreground">No deliveries</h3>
+				<p className="text-sm text-muted-foreground mt-1">
+					Deliveries will appear here once webhooks start firing.
+				</p>
+			</div>
+		);
+	}
+
 	return (
-		<Table>
-			<TableHeader>
-				<TableRow>
-					<TableHead>Event</TableHead>
-					<TableHead>HTTP Status</TableHead>
-					<TableHead>Duration</TableHead>
-					<TableHead>Timestamp</TableHead>
-					<TableHead className="text-right">Result</TableHead>
-				</TableRow>
-			</TableHeader>
-			<TableBody>
-				{deliveries.map((delivery) => (
-					<TableRow
-						key={delivery.id}
-						onClick={() => onRowClick(delivery)}
-						className="cursor-pointer"
-					>
-						<TableCell className="font-medium">{delivery.event}</TableCell>
-						<TableCell>
-							<Badge variant="outline" className="font-mono">
-								{delivery.status}
-							</Badge>
-						</TableCell>
-						<TableCell className="text-muted-foreground">
-							{delivery.duration}
-						</TableCell>
-						<TableCell className="text-muted-foreground">
-							{delivery.timestamp}
-						</TableCell>
-						<TableCell className="text-right">
-							<Badge
-								variant={delivery.success ? "secondary" : "destructive"}
-								className={
-									delivery.success
-										? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-200"
-										: ""
-								}
-							>
-								{delivery.success ? "✓ Success" : "✗ Failed"}
-							</Badge>
-						</TableCell>
+		<div className="rounded-2xl border overflow-hidden">
+			<Table>
+				<TableHeader>
+					<TableRow className="border-b">
+						<TableHead className="text-xs font-normal text-muted-foreground">
+							Event
+						</TableHead>
+						<TableHead className="text-xs font-normal text-muted-foreground">
+							Status
+						</TableHead>
+						<TableHead className="text-xs font-normal text-muted-foreground">
+							Duration
+						</TableHead>
+						<TableHead className="text-xs font-normal text-muted-foreground">
+							Time
+						</TableHead>
 					</TableRow>
-				))}
-			</TableBody>
-		</Table>
+				</TableHeader>
+
+				<TableBody>
+					{deliveries.map((delivery) => {
+						const isError = delivery.status >= 400;
+
+						return (
+							<TableRow
+								key={delivery.id}
+								onClick={() => onRowClick(delivery)}
+								className="cursor-pointer border-b last:border-0 hover:bg-muted/40 transition-colors"
+							>
+								{/* Event */}
+								<TableCell className="py-3">
+									<span className="font-medium font-mono text-sm">
+										{delivery.event}
+									</span>
+								</TableCell>
+
+								{/* HTTP Status */}
+								<TableCell className="py-3">
+									<span
+										className={
+											isError
+												? "text-red-600 tabular-nums"
+												: "text-muted-foreground tabular-nums"
+										}
+									>
+										{delivery.status}
+									</span>
+								</TableCell>
+
+								{/* Duration */}
+								<TableCell className="py-3 tabular-nums text-muted-foreground">
+									{delivery.duration}
+								</TableCell>
+
+								{/* Time */}
+								<TableCell className="py-3 text-muted-foreground">
+									{delivery.timestamp}
+								</TableCell>
+							</TableRow>
+						);
+					})}
+				</TableBody>
+			</Table>
+		</div>
 	);
 }
