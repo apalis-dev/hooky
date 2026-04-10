@@ -1,4 +1,5 @@
 import { Inbox } from "lucide-react";
+import { useNavigate } from "react-router";
 import {
 	Table,
 	TableBody,
@@ -52,10 +53,11 @@ const deliveries = [
 ];
 
 interface DeliveriesTableProps {
-	onRowClick: (delivery: any) => void;
+	onRowClick?: (delivery: any) => void;
 }
 
-export function DeliveriesTable({ onRowClick }: DeliveriesTableProps) {
+export function DeliveriesTable({ onRowClick }: DeliveriesTableProps = {}) {
+	const navigate = useNavigate();
 	if (deliveries.length === 0) {
 		return (
 			<div className="flex flex-col items-center justify-center py-16 text-center">
@@ -72,7 +74,7 @@ export function DeliveriesTable({ onRowClick }: DeliveriesTableProps) {
 	}
 
 	return (
-		<div className="rounded-2xl border overflow-hidden">
+		<div className="overflow-hidden">
 			<Table>
 				<TableHeader>
 					<TableRow className="border-b">
@@ -98,7 +100,13 @@ export function DeliveriesTable({ onRowClick }: DeliveriesTableProps) {
 						return (
 							<TableRow
 								key={delivery.id}
-								onClick={() => onRowClick(delivery)}
+								onClick={() => {
+									if (onRowClick) {
+										onRowClick(delivery);
+									} else {
+										navigate(`/deliveries/${delivery.id}`);
+									}
+								}}
 								className="cursor-pointer border-b last:border-0 hover:bg-muted/40 transition-colors"
 							>
 								{/* Event */}

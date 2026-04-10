@@ -25,10 +25,44 @@ import {
 const routeLabels: Record<string, string> = {
 	"/": "Overview",
 	"/webhooks": "Webhooks",
+	"/webhooks/new": "Create Webhook",
 	"/deliveries": "Deliveries",
 	"/logs": "Logs",
 	"/settings": "Settings",
 };
+
+function getBreadcrumbs(pathname: string) {
+	if (pathname === "/") {
+		return [{ label: "Overview", to: "/" }];
+	}
+
+	const segments = pathname.split("/").filter(Boolean);
+	const crumbs: { label: string; to: string }[] = [
+		{ label: "Dashboard", to: "/" },
+	];
+
+	let currentPath = "";
+	for (let i = 0; i < segments.length; i++) {
+		currentPath += `/${segments[i]}`;
+		const label = routeLabels[currentPath];
+		if (label) {
+			crumbs.push({ label, to: currentPath });
+		} else {
+			// Dynamic segment like /deliveries/:id
+			const parentPath = currentPath.substring(
+				0,
+				currentPath.lastIndexOf("/"),
+			);
+			const parentLabel = routeLabels[parentPath];
+			if (parentLabel && !crumbs.some((c) => c.to === parentPath)) {
+				crumbs.push({ label: parentLabel, to: parentPath });
+			}
+			crumbs.push({ label: `#${segments[i]}`, to: currentPath });
+		}
+	}
+
+	return crumbs;
+}
 
 export function TopNav() {
 	const { theme, setTheme } = useTheme();
@@ -51,6 +85,7 @@ export function TopNav() {
 
 	const currentLabel = routeLabels[location.pathname] ?? "Dashboard";
 	const isRoot = location.pathname === "/";
+	const crumbs = getBreadcrumbs(location.pathname);
 
 	return (
 		<header className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-4">
@@ -59,23 +94,21 @@ export function TopNav() {
 
 			<Breadcrumb>
 				<BreadcrumbList>
-					{isRoot ? (
-						<BreadcrumbItem>
-							<BreadcrumbPage>Overview</BreadcrumbPage>
-						</BreadcrumbItem>
-					) : (
-						<>
-							<BreadcrumbItem>
-								<BreadcrumbLink asChild>
-									<Link to="/">Dashboard</Link>
-								</BreadcrumbLink>
+					{crumbs.map((crumb, index) => {
+						const isLast = index === crumbs.length - 1;
+						return (
+							<BreadcrumbItem key={crumb.to}>
+								{index > 0 && <BreadcrumbSeparator />}
+								{isLast ? (
+									<BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+								) : (
+									<BreadcrumbLink asChild>
+										<Link to={crumb.to}>{crumb.label}</Link>
+									</BreadcrumbLink>
+								)}
 							</BreadcrumbItem>
-							<BreadcrumbSeparator />
-							<BreadcrumbItem>
-								<BreadcrumbPage>{currentLabel}</BreadcrumbPage>
-							</BreadcrumbItem>
-						</>
-					)}
+						);
+					})}
 				</BreadcrumbList>
 			</Breadcrumb>
 
