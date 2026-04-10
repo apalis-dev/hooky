@@ -5,7 +5,6 @@ import {
 	SidebarContent,
 	SidebarGroup,
 	SidebarGroupContent,
-	SidebarGroupLabel,
 	SidebarHeader,
 	SidebarMenu,
 	SidebarMenuButton,
@@ -30,22 +29,25 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 				<SidebarMenu>
 					<SidebarMenuItem>
 						<SidebarMenuButton size="lg" asChild>
-							<NavLink to="/" end>
-								<div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-									<Bolt className="size-4" />
+							<NavLink to="/" end className="flex items-center gap-2">
+								<div className="flex size-8 items-center justify-center rounded-md border">
+									<Bolt className="size-4 text-foreground" />
 								</div>
+
 								<div className="grid flex-1 text-left text-sm leading-tight">
-									<span className="truncate font-semibold">Webhooks</span>
-									<span className="truncate text-xs">Dashboard</span>
+									<span className="truncate font-medium">Hooky</span>
+									<span className="truncate text-xs text-muted-foreground">
+										Dashboard
+									</span>
 								</div>
 							</NavLink>
 						</SidebarMenuButton>
 					</SidebarMenuItem>
 				</SidebarMenu>
 			</SidebarHeader>
+
 			<SidebarContent>
 				<SidebarGroup>
-					<SidebarGroupLabel>Navigation</SidebarGroupLabel>
 					<SidebarGroupContent>
 						<SidebarMenu>
 							{navItems.map((item) => {
@@ -53,16 +55,28 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 									item.to === "/"
 										? pathname === "/"
 										: pathname.startsWith(item.to);
+
 								return (
 									<SidebarMenuItem key={item.to}>
 										<SidebarMenuButton
 											asChild
 											isActive={isActive}
 											tooltip={item.label}
+											className="gap-2 data-[active=true]:bg-muted data-[active=true]:text-foreground"
 										>
-											<NavLink to={item.to} end={item.to === "/"}>
-												<item.icon />
-												<span>{item.label}</span>
+											<NavLink
+												to={item.to}
+												end={item.to === "/"}
+												className="flex items-center gap-2"
+											>
+												<item.icon
+													className={`size-4 ${
+														isActive
+															? "text-foreground"
+															: "text-muted-foreground"
+													}`}
+												/>
+												<span className="text-sm">{item.label}</span>
 											</NavLink>
 										</SidebarMenuButton>
 									</SidebarMenuItem>
@@ -72,6 +86,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 					</SidebarGroupContent>
 				</SidebarGroup>
 			</SidebarContent>
+
 			<SidebarRail />
 		</Sidebar>
 	);
