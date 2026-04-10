@@ -56,7 +56,7 @@ export function SettingsPage() {
 								/>
 
 								<Button
-									variant="ghost"
+									variant="outline"
 									size="icon"
 									onClick={() => setShowSecret(!showSecret)}
 								>
@@ -111,7 +111,7 @@ export function SettingsPage() {
 								/>
 
 								<Button
-									variant="ghost"
+									variant="outline"
 									size="icon"
 									onClick={() => setShowApiKey(!showApiKey)}
 								>
@@ -123,7 +123,7 @@ export function SettingsPage() {
 								</Button>
 
 								<Button
-									variant="ghost"
+									variant="outline"
 									size="icon"
 									onClick={() =>
 										handleCopy("sk_live_51234567890abcdef", "apikey")
