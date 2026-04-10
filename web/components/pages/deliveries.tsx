@@ -14,7 +14,7 @@ export function DeliveriesPage() {
 			</div>
 
 			<Card className="overflow-hidden">
-				<DeliveriesTable onRowClick={() => {}} />
+				<DeliveriesTable />
 			</Card>
 		</div>
 	);
