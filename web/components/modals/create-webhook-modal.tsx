@@ -74,7 +74,7 @@ export function CreateWebhookModal({
 								{events.map((event) => (
 									<Label
 										key={event}
-										className="flex items-center gap-3 rounded-md p-2 hover:bg-muted cursor-pointer"
+										className="flex items-center gap-3 p-2"
 									>
 										<Checkbox
 											checked={selectedEvents.includes(event)}
@@ -96,7 +96,7 @@ export function CreateWebhookModal({
 					</div>
 				</div>
 
-				<DialogFooter className="gap-2 sm:gap-0">
+				<DialogFooter>
 					<Button variant="outline" onClick={() => onOpenChange(false)}>
 						Cancel
 					</Button>

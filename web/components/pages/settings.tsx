@@ -44,16 +44,16 @@ export function SettingsPage() {
 					<CardContent className="space-y-4">
 						<div className="space-y-2">
 							<Label htmlFor="webhook-secret">Webhook Secret</Label>
-							<div className="flex items-center gap-2 rounded-md border border-border bg-muted/50 px-3 py-2">
-								<code className="flex-1 text-sm font-mono text-muted-foreground">
-									{showSecret
-										? "whk_secret_abc123xyz"
-										: "••••••••••••••••••••"}
-								</code>
+							<div className="flex items-center gap-2">
+								<Input
+									id="webhook-secret"
+									type={showSecret ? "text" : "password"}
+									value="whk_secret_abc123xyz"
+									readOnly
+								/>
 								<Button
-									variant="ghost"
+									variant="outline"
 									size="icon"
-									className="h-7 w-7"
 									onClick={() => setShowSecret(!showSecret)}
 								>
 									{showSecret ? (
@@ -83,16 +83,16 @@ export function SettingsPage() {
 					<CardContent className="space-y-4">
 						<div className="space-y-2">
 							<Label htmlFor="api-key">Primary API Key</Label>
-							<div className="flex items-center gap-2 rounded-md border border-border bg-muted/50 px-3 py-2">
-								<code className="flex-1 text-sm font-mono text-muted-foreground">
-									{showApiKey
-										? "sk_live_51234567890abcdef"
-										: "••••••••••••••••••••"}
-								</code>
+							<div className="flex items-center gap-2">
+								<Input
+									id="api-key"
+									type={showApiKey ? "text" : "password"}
+									value="sk_live_51234567890abcdef"
+									readOnly
+								/>
 								<Button
-									variant="ghost"
+									variant="outline"
 									size="icon"
-									className="h-7 w-7"
 									onClick={() => setShowApiKey(!showApiKey)}
 								>
 									{showApiKey ? (
@@ -105,9 +105,8 @@ export function SettingsPage() {
 									</span>
 								</Button>
 								<Button
-									variant="ghost"
+									variant="outline"
 									size="icon"
-									className="h-7 w-7"
 									onClick={() =>
 										handleCopy("sk_live_51234567890abcdef", "apikey")
 									}
@@ -117,7 +116,9 @@ export function SettingsPage() {
 								</Button>
 							</div>
 							{copied === "apikey" && (
-								<p className="text-xs text-accent">Copied to clipboard</p>
+								<p className="text-xs text-muted-foreground">
+									Copied to clipboard
+								</p>
 							)}
 						</div>
 					</CardContent>
@@ -138,6 +139,9 @@ export function SettingsPage() {
 							<Label htmlFor="max-retries">Max Retries</Label>
 							<Input id="max-retries" type="number" defaultValue="3" />
 						</div>
+					</div>
+					<div className="mt-6 flex justify-end">
+						<Button>Save Changes</Button>
 					</div>
 				</CardContent>
 			</Card>

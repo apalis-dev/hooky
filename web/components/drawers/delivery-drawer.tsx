@@ -1,5 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import {
 	Sheet,
 	SheetContent,
 	SheetHeader,
@@ -37,7 +43,7 @@ export function DeliveryDrawer({
 							</div>
 							<div>
 								<p className="text-muted-foreground">Status Code</p>
-								<Badge variant="outline" className="font-mono">
+								<Badge variant="outline">
 									{delivery.status}
 								</Badge>
 							</div>
@@ -58,12 +64,13 @@ export function DeliveryDrawer({
 
 					<Separator />
 
-					<div>
-						<h3 className="text-sm font-semibold text-foreground mb-3">
-							Request Payload
-						</h3>
-						<pre className="bg-muted border border-border rounded-md p-3 text-xs overflow-x-auto text-muted-foreground">
-							{`{
+					<Card>
+						<CardHeader>
+							<CardTitle className="text-sm">Request Payload</CardTitle>
+						</CardHeader>
+						<CardContent>
+							<pre className="text-xs text-muted-foreground overflow-x-auto">
+								{`{
   "id": "evt_123456",
   "event": "${delivery.event}",
   "timestamp": "${delivery.timestamp}",
@@ -72,20 +79,23 @@ export function DeliveryDrawer({
     "email": "user@example.com"
   }
 }`}
-						</pre>
-					</div>
+							</pre>
+						</CardContent>
+					</Card>
 
-					<div>
-						<h3 className="text-sm font-semibold text-foreground mb-3">
-							Response Payload
-						</h3>
-						<pre className="bg-muted border border-border rounded-md p-3 text-xs overflow-x-auto text-muted-foreground">
-							{`{
+					<Card>
+						<CardHeader>
+							<CardTitle className="text-sm">Response Payload</CardTitle>
+						</CardHeader>
+						<CardContent>
+							<pre className="text-xs text-muted-foreground overflow-x-auto">
+								{`{
   "received": true,
   "id": "evt_123456"
 }`}
-						</pre>
-					</div>
+							</pre>
+						</CardContent>
+					</Card>
 
 					<Separator />
 
@@ -93,19 +103,19 @@ export function DeliveryDrawer({
 						<h3 className="text-sm font-semibold text-foreground mb-3">
 							Retries
 						</h3>
-						<div className="space-y-2 text-sm">
-							<div className="flex items-center gap-3 rounded-md border border-border bg-muted/50 p-3">
-								<div className="h-2 w-2 shrink-0 rounded-full bg-green-500" />
+						<Card>
+							<CardContent className="flex items-center gap-3 pt-4">
+								<Badge variant="success">Success</Badge>
 								<div>
-									<p className="text-foreground font-medium">
-										Attempt 1 - Success
+									<p className="text-sm text-foreground font-medium">
+										Attempt 1
 									</p>
 									<p className="text-xs text-muted-foreground">
 										2025-12-08 14:32:00
 									</p>
 								</div>
-							</div>
-						</div>
+							</CardContent>
+						</Card>
 					</div>
 				</div>
 			</SheetContent>
