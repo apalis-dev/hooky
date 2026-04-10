@@ -71,7 +71,7 @@ export function DeliveriesTable() {
 	}
 
 	return (
-		<div className="rounded-2xl border overflow-hidden">
+		<div className="overflow-hidden">
 			<Table>
 				<TableHeader>
 					<TableRow className="border-b">
@@ -97,7 +97,7 @@ export function DeliveriesTable() {
 						return (
 							<TableRow
 								key={delivery.id}
-								onClick={() => navigate(`/deliveries/${delivery.id}`)}
+							onClick={() => navigate(`/deliveries/${delivery.id}`)}
 								className="cursor-pointer border-b last:border-0 hover:bg-muted/40 transition-colors"
 							>
 								{/* Event */}
