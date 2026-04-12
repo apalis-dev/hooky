@@ -1,5 +1,4 @@
-import { MoreVertical, Edit, Trash2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { MoreVertical, Edit, Trash2, Webhook } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -48,57 +47,107 @@ const webhooks = [
 ];
 
 export function WebhookTable() {
+	if (webhooks.length === 0) {
+		return (
+			<div className="flex flex-col items-center justify-center py-16 text-center">
+				<Webhook
+					className="h-10 w-10 text-muted-foreground/40 mb-3"
+					strokeWidth={1.5}
+				/>
+				<h3 className="text-sm font-medium text-foreground">No webhooks</h3>
+				<p className="text-sm text-muted-foreground mt-1">
+					Create your first webhook endpoint to get started.
+				</p>
+			</div>
+		);
+	}
+
 	return (
 		<Table>
 			<TableHeader>
-				<TableRow>
-					<TableHead>Name</TableHead>
-					<TableHead>Target URL</TableHead>
-					<TableHead>Status</TableHead>
-					<TableHead>Created At</TableHead>
-					<TableHead className="text-right">Actions</TableHead>
+				<TableRow className="border-b">
+					<TableHead className="text-xs font-normal text-muted-foreground">
+						Name
+					</TableHead>
+					<TableHead className="text-xs font-normal text-muted-foreground">
+						Target
+					</TableHead>
+					<TableHead className="text-xs font-normal text-muted-foreground">
+						Status
+					</TableHead>
+					<TableHead className="text-xs font-normal text-muted-foreground">
+						Created
+					</TableHead>
+					<TableHead className="text-xs font-normal text-muted-foreground text-right">
+						Actions
+					</TableHead>
 				</TableRow>
 			</TableHeader>
+
 			<TableBody>
 				{webhooks.map((webhook) => (
-					<TableRow key={webhook.id}>
-						<TableCell className="font-medium">{webhook.name}</TableCell>
-						<TableCell className="max-w-xs truncate text-muted-foreground">
+					<TableRow
+						key={webhook.id}
+						className="border-b last:border-0 hover:bg-muted/40 transition-colors"
+					>
+						{/* Name */}
+						<TableCell className="py-3">
+							<div className="flex flex-col">
+								<span className="font-medium">{webhook.name}</span>
+							</div>
+						</TableCell>
+
+						{/* URL */}
+						<TableCell className="py-3 max-w-xs truncate text-muted-foreground">
 							{webhook.url}
 						</TableCell>
-						<TableCell>
-							<Badge
-								variant={
-									webhook.status === "active" ? "secondary" : "outline"
-								}
-								className={
-									webhook.status === "active"
-										? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-200"
-										: ""
-								}
-							>
-								{webhook.status === "active" ? "● " : "○ "}
-								{webhook.status.charAt(0).toUpperCase() +
-									webhook.status.slice(1)}
-							</Badge>
+
+						{/* Status */}
+						<TableCell className="py-3">
+							<div className="flex items-center gap-2 text-sm">
+								<span
+									className={
+										webhook.status === "active"
+											? "h-1.5 w-1.5 rounded-full bg-emerald-500"
+											: "h-1.5 w-1.5 rounded-full bg-zinc-400"
+									}
+								/>
+								<span
+									className={
+										webhook.status === "active"
+											? "text-emerald-600"
+											: "text-muted-foreground"
+									}
+								>
+									{webhook.status}
+								</span>
+							</div>
 						</TableCell>
-						<TableCell className="text-muted-foreground">
+
+						{/* Created */}
+						<TableCell className="py-3 text-muted-foreground tabular-nums">
 							{webhook.createdAt}
 						</TableCell>
-						<TableCell className="text-right">
+
+						{/* Actions */}
+						<TableCell className="py-3 text-right">
 							<DropdownMenu>
 								<DropdownMenuTrigger asChild>
-									<Button variant="ghost" size="icon" className="h-8 w-8">
+									<Button
+										variant="ghost"
+										size="icon"
+										className="h-8 w-8 text-muted-foreground hover:text-foreground"
+									>
 										<MoreVertical className="h-4 w-4" />
-										<span className="sr-only">Open menu</span>
 									</Button>
 								</DropdownMenuTrigger>
+
 								<DropdownMenuContent align="end">
 									<DropdownMenuItem>
 										<Edit className="h-4 w-4" />
 										Edit
 									</DropdownMenuItem>
-									<DropdownMenuItem variant="destructive">
+									<DropdownMenuItem className="text-red-600">
 										<Trash2 className="h-4 w-4" />
 										Delete
 									</DropdownMenuItem>

@@ -1,14 +1,13 @@
-import { useState } from "react";
+import { Link } from "react-router";
 import { Plus, Search } from "lucide-react";
+import { useState } from "react";
 import { WebhookTable } from "../webhook-table";
-import { CreateWebhookModal } from "../modals/create-webhook-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function WebhooksPage() {
-	const [showModal, setShowModal] = useState(false);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [statusFilter, setStatusFilter] = useState("all");
 
@@ -16,9 +15,7 @@ export function WebhooksPage() {
 		<div className="p-8 space-y-6">
 			<div>
 				<h1 className="text-3xl font-semibold text-foreground mb-2">Hooky</h1>
-				<p className="text-muted-foreground">
-					Easily create, monitor, and manage your webhooks
-				</p>
+				<p className="text-muted-foreground">current webhooks</p>
 			</div>
 			<div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
 				<div className="relative flex-1 max-w-md">
@@ -32,9 +29,11 @@ export function WebhooksPage() {
 					/>
 				</div>
 
-				<Button onClick={() => setShowModal(true)}>
-					<Plus className="h-4 w-4" />
-					Create Webhook
+				<Button asChild>
+					<Link to="/webhooks/new">
+						<Plus className="h-4 w-4" />
+						Create Webhook
+					</Link>
 				</Button>
 			</div>
 			<Tabs value={statusFilter} onValueChange={setStatusFilter}>
@@ -49,11 +48,6 @@ export function WebhooksPage() {
 			<Card className="overflow-hidden">
 				<WebhookTable />
 			</Card>
-
-			<CreateWebhookModal
-				open={showModal}
-				onOpenChange={setShowModal}
-			/>
 		</div>
 	);
 }

@@ -1,11 +1,7 @@
-import { useState } from "react";
 import { DeliveriesTable } from "../deliveries-table";
-import { DeliveryDrawer } from "../drawers/delivery-drawer";
 import { Card } from "@/components/ui/card";
 
 export function DeliveriesPage() {
-	const [selectedDelivery, setSelectedDelivery] = useState<any>(null);
-
 	return (
 		<div className="p-8 space-y-6">
 			<div>
@@ -18,18 +14,8 @@ export function DeliveriesPage() {
 			</div>
 
 			<Card className="overflow-hidden">
-				<DeliveriesTable onRowClick={setSelectedDelivery} />
+				<DeliveriesTable />
 			</Card>
-
-			{selectedDelivery && (
-				<DeliveryDrawer
-					delivery={selectedDelivery}
-					open={!!selectedDelivery}
-					onOpenChange={(open) => {
-						if (!open) setSelectedDelivery(null);
-					}}
-				/>
-			)}
 		</div>
 	);
 }
