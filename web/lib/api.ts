@@ -1,183 +1,125 @@
-import { Log } from "../lib/types";
-import { Webhook } from "../lib/types";
-import { UpdateWebhook } from "../lib/types";
-import { CreateDelivery } from "../lib/types";
-import { CreateEvent } from "../lib/types";
-import { Settings } from "../lib/types";
-import { Delivery } from "../lib/types";
-import { CreateWebhook } from "../lib/types";
-import { PaginationParams } from "../lib/types";
-import { HealthResponse } from "../lib/types";
-import { ApiError } from "../lib/types";
+import type {
+  Log,
+  Webhook,
+  UpdateWebhook,
+  CreateDelivery,
+  CreateEvent,
+  Settings,
+  Delivery,
+  CreateWebhook,
+  PaginationParams,
+  HealthResponse,
+  Event,
+} from "./types";
 
-class ApiClient {
-  private baseUrl: string;
+const BASE_URL =
+  import.meta.env.VITE_API_URL ?? "http://localhost:8080/api/v1";
 
-  constructor(baseUrl: string = "http://localhost:3000/api/v1") {
-    this.baseUrl = baseUrl;
-  }
+// ── Error ────────────────────────────────────────────────────────────
 
-  private async request<T>(
-    endpoint: string,
-    options?: RequestInit
-  ): Promise<T> {
-    const url = `${this.baseUrl}${endpoint}`;
+export class ApiError extends Error {
+  status: number;
 
-    try {
-      const response = await fetch(url, {
-        ...options,
-        headers: {
-          "Content-Type": "application/json",
-          ...options?.headers,
-        },
-      });
-
-      if (!response.ok) {
-        throw {
-          message: `HTTP error! status: ${response.status}`,
-          status: response.status,
-        } as ApiError;
-      }
-
-      // Handle 204 No Content
-      if (response.status === 204) {
-        return {} as T;
-      }
-
-      return await response.json();
-    } catch (error) {
-      if ((error as ApiError).status) {
-        throw error;
-      }
-      throw {
-        message: "Network error",
-        status: 0,
-      } as ApiError;
-    }
-  }
-
-  async getHealth(): Promise<HealthResponse> {
-    return this.request<HealthResponse>("/health");
-  }
-
-  async getLogs(params?: PaginationParams): Promise<Log[]> {
-    const query = new URLSearchParams();
-    if (params?.page !== undefined)
-      query.append("page", params.page.toString());
-    if (params?.limit !== undefined)
-      query.append("limit", params.limit.toString());
-
-    const queryString = query.toString();
-    return this.request<Log[]>(`/logs${queryString ? `?${queryString}` : ""}`);
-  }
-
-  async createLog(data: { level: string; message: string }): Promise<void> {
-    await this.request<void>("/logs", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
-  }
-
-  async getWebhooks(params?: PaginationParams): Promise<Webhook[]> {
-    const query = new URLSearchParams();
-    if (params?.page !== undefined)
-      query.append("page", params.page.toString());
-    if (params?.limit !== undefined)
-      query.append("limit", params.limit.toString());
-
-    const queryString = query.toString();
-    return this.request<Webhook[]>(
-      `/webhooks${queryString ? `?${queryString}` : ""}`
-    );
-  }
-
-  async getWebhook(id: number): Promise<Webhook> {
-    return this.request<Webhook>(`/webhooks/${id}`);
-  }
-
-  async createWebhook(data: CreateWebhook): Promise<Webhook> {
-    return this.request<Webhook>("/webhooks", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
-  }
-
-  async updateWebhook(id: number, data: UpdateWebhook): Promise<Webhook> {
-    return this.request<Webhook>(`/webhooks/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(data),
-    });
-  }
-
-  async deleteWebhook(id: number): Promise<void> {
-    await this.request<void>(`/webhooks/${id}`, {
-      method: "DELETE",
-    });
-  }
-
-  async getDeliveries(params?: PaginationParams): Promise<Delivery[]> {
-    const query = new URLSearchParams();
-    if (params?.page !== undefined)
-      query.append("page", params.page.toString());
-    if (params?.limit !== undefined)
-      query.append("limit", params.limit.toString());
-
-    const queryString = query.toString();
-    return this.request<Delivery[]>(
-      `/deliveries${queryString ? `?${queryString}` : ""}`
-    );
-  }
-
-  async getDelivery(id: number): Promise<Delivery> {
-    return this.request<Delivery>(`/deliveries/${id}`);
-  }
-
-  async createDelivery(data: CreateDelivery): Promise<Delivery> {
-    return this.request<Delivery>("/deliveries", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
-  }
-
-  async getEvents(params?: PaginationParams): Promise<Event[]> {
-    const query = new URLSearchParams();
-    if (params?.page !== undefined)
-      query.append("page", params.page.toString());
-    if (params?.limit !== undefined)
-      query.append("limit", params.limit.toString());
-
-    const queryString = query.toString();
-    return this.request<Event[]>(
-      `/events${queryString ? `?${queryString}` : ""}`
-    );
-  }
-
-  async getEvent(id: number): Promise<Event> {
-    return this.request<Event>(`/events/${id}`);
-  }
-
-  async createEvent(data: CreateEvent): Promise<Event> {
-    return this.request<Event>("/events", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
-  }
-
-  async getEventTypes(): Promise<string[]> {
-    return this.request<string[]>("/event-types");
-  }
-
-  async getSettings(): Promise<Settings> {
-    return this.request<Settings>("/settings");
-  }
-
-  async updateSettings(data: Settings): Promise<Settings> {
-    return this.request<Settings>("/settings", {
-      method: "PUT",
-      body: JSON.stringify(data),
-    });
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
   }
 }
 
-export const apiClient = new ApiClient();
-export { ApiClient };
+// ── Internals ────────────────────────────────────────────────────────
+
+function buildQuery(params?: PaginationParams): string {
+  if (!params) return "";
+  const q = new URLSearchParams();
+  if (params.page != null) q.set("page", String(params.page));
+  if (params.limit != null) q.set("limit", String(params.limit));
+  const s = q.toString();
+  return s ? `?${s}` : "";
+}
+
+async function request<T>(endpoint: string, init?: RequestInit): Promise<T> {
+  const url = `${BASE_URL}${endpoint}`;
+
+  const res = await fetch(url, {
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      ...init?.headers,
+    },
+  });
+
+  if (!res.ok) {
+    throw new ApiError(`HTTP ${res.status}: ${res.statusText}`, res.status);
+  }
+
+  const contentType = res.headers.get("content-type");
+  if (res.status === 204 || !contentType?.includes("application/json")) {
+    return undefined as T;
+  }
+
+  return res.json();
+}
+
+function get<T>(endpoint: string) {
+  return request<T>(endpoint);
+}
+
+function post<T>(endpoint: string, body: unknown) {
+  return request<T>(endpoint, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+function put<T>(endpoint: string, body: unknown) {
+  return request<T>(endpoint, {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+}
+
+function del<T = void>(endpoint: string) {
+  return request<T>(endpoint, { method: "DELETE" });
+}
+
+// ── Public API ───────────────────────────────────────────────────────
+
+export const getHealth = () => get<HealthResponse>("/health");
+
+// Webhooks
+export const getWebhooks = (params?: PaginationParams) =>
+  get<Webhook[]>(`/webhooks${buildQuery(params)}`);
+export const getWebhook = (id: number) => get<Webhook>(`/webhooks/${id}`);
+export const createWebhook = (data: CreateWebhook) =>
+  post<Webhook>("/webhooks", data);
+export const updateWebhook = (id: number, data: UpdateWebhook) =>
+  put<Webhook>(`/webhooks/${id}`, data);
+export const deleteWebhook = (id: number) => del(`/webhooks/${id}`);
+
+// Deliveries
+export const getDeliveries = (params?: PaginationParams) =>
+  get<Delivery[]>(`/deliveries${buildQuery(params)}`);
+export const getDelivery = (id: number) =>
+  get<Delivery>(`/deliveries/${id}`);
+export const createDelivery = (data: CreateDelivery) =>
+  post<Delivery>("/deliveries", data);
+
+// Events
+export const getEvents = (params?: PaginationParams) =>
+  get<Event[]>(`/events${buildQuery(params)}`);
+export const getEvent = (id: number) => get<Event>(`/events/${id}`);
+export const createEvent = (data: CreateEvent) =>
+  post<Event>("/events", data);
+export const getEventTypes = () => get<string[]>("/event-types");
+
+// Logs
+export const getLogs = (params?: PaginationParams) =>
+  get<Log[]>(`/logs${buildQuery(params)}`);
+export const createLog = (data: { level: string; message: string }) =>
+  post<void>("/logs", data);
+
+// Settings
+export const getSettings = () => get<Settings>("/settings");
+export const updateSettings = (data: Settings) =>
+  put<Settings>("/settings", data);
