@@ -1,7 +1,12 @@
+import type { Delivery } from "@/lib/types";
 import { DeliveriesTable } from "../deliveries-table";
 import { Card } from "@/components/ui/card";
 
-export function DeliveriesPage() {
+interface DeliveriesPageProps {
+	deliveries: Delivery[];
+}
+
+export function DeliveriesPage({ deliveries }: DeliveriesPageProps) {
 	return (
 		<div className="p-8 space-y-6">
 			<div>
@@ -14,7 +19,7 @@ export function DeliveriesPage() {
 			</div>
 
 			<Card className="overflow-hidden">
-				<DeliveriesTable />
+				<DeliveriesTable deliveries={deliveries} />
 			</Card>
 		</div>
 	);

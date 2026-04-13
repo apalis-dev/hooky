@@ -53,13 +53,13 @@ export function OverviewPage({
 
 	// Endpoint status breakdown
 	const healthyCount = webhooks.filter((w) => w.status === "active").length;
-	const degradedCount = webhooks.filter(
-		(w) => w.status === "disabled",
+	const inactiveCount = webhooks.filter(
+		(w) => w.status === "inactive",
 	).length;
 	const failingCount = webhooks.filter((w) => w.status === "failed").length;
 	const total = webhooks.length || 1;
 	const healthyPct = Math.round((healthyCount / total) * 100);
-	const degradedPct = Math.round((degradedCount / total) * 100);
+	const inactivePct = Math.round((inactiveCount / total) * 100);
 	const failingPct = Math.round((failingCount / total) * 100);
 
 	// Percentile latencies
@@ -136,7 +136,7 @@ export function OverviewPage({
 							/>
 							<div
 								className="bg-zinc-400/60"
-								style={{ width: `${degradedPct}%` }}
+								style={{ width: `${inactivePct}%` }}
 							/>
 							<div
 								className="bg-red-500/80"
@@ -156,10 +156,10 @@ export function OverviewPage({
 							<div className="flex items-center justify-between">
 								<div className="flex items-center gap-2 text-muted-foreground">
 									<span className="h-1.5 w-1.5 rounded-full bg-zinc-400" />
-									<span>Degraded</span>
+									<span>Inactive</span>
 								</div>
 								<span className="font-medium tabular-nums">
-									{degradedCount}
+									{inactiveCount}
 								</span>
 							</div>
 

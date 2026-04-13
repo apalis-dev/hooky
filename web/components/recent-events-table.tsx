@@ -85,14 +85,14 @@ export function RecentEventsTable({ events }: RecentEventsTableProps) {
 								<div className="flex items-center justify-end gap-2 text-sm">
 									<span
 										className={
-											event.status === "success"
+											event.status === "delivered"
 												? "h-1.5 w-1.5 rounded-full bg-emerald-500"
 												: "h-1.5 w-1.5 rounded-full bg-red-500"
 										}
 									/>
 									<span
 										className={
-											event.status === "success"
+											event.status === "delivered"
 												? "text-emerald-600"
 												: "text-red-600"
 										}
