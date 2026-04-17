@@ -3,7 +3,7 @@ import type { Log } from "@/lib/types";
 import { LogsPage } from "@/components/pages/logs";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const DEFAULT_LIMIT = 20;
+const DEFAULT_LIMIT = 10;
 
 export async function clientLoader({ request }: { request: Request }) {
   const url = new URL(request.url);

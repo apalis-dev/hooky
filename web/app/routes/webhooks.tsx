@@ -4,7 +4,7 @@ import { WebhooksPage } from "@/components/pages/webhooks";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
 
-const DEFAULT_LIMIT = 20;
+const DEFAULT_LIMIT = 10;
 
 export async function clientLoader({ request }: { request: Request }) {
   const url = new URL(request.url);
