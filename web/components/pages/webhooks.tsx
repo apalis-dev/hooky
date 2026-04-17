@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { Plus, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { WebhookTable } from "../webhook-table";
@@ -6,17 +6,41 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+	Pagination,
+	PaginationContent,
+	PaginationItem,
+	PaginationNext,
+	PaginationPrevious,
+} from "@/components/ui/pagination";
 import type { Webhook } from "@/lib/types";
 
 interface WebhooksPageProps {
 	webhooks: Webhook[];
+	page: number;
+	limit: number;
 }
 
 const STATUS_FILTERS = ["all", "active", "inactive"] as const;
 
-export function WebhooksPage({ webhooks }: WebhooksPageProps) {
+export function WebhooksPage({ webhooks, page, limit }: WebhooksPageProps) {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [statusFilter, setStatusFilter] = useState("all");
+	const navigate = useNavigate();
+
+	const hasMore = webhooks.length === limit;
+
+	const handlePrev = () => {
+		if (page > 0) {
+			navigate(`?page=${page - 1}&limit=${limit}`);
+		}
+	};
+
+	const handleNext = () => {
+		if (hasMore) {
+			navigate(`?page=${page + 1}&limit=${limit}`);
+		}
+	};
 
 	const filtered = useMemo(() => {
 		return webhooks.filter((w) => {
@@ -67,6 +91,32 @@ export function WebhooksPage({ webhooks }: WebhooksPageProps) {
 			<Card className="overflow-hidden">
 				<WebhookTable webhooks={filtered} />
 			</Card>
+			<Pagination>
+				<PaginationContent>
+					<PaginationItem>
+						<PaginationPrevious
+							href={`?page=${page - 1}&limit=${limit}`}
+							onClick={(e) => {
+								e.preventDefault();
+								handlePrev();
+							}}
+							aria-disabled={page === 0}
+							className={page === 0 ? "pointer-events-none opacity-50" : undefined}
+						/>
+					</PaginationItem>
+					<PaginationItem>
+						<PaginationNext
+							href={`?page=${page + 1}&limit=${limit}`}
+							onClick={(e) => {
+								e.preventDefault();
+								handleNext();
+							}}
+							aria-disabled={!hasMore}
+							className={!hasMore ? "pointer-events-none opacity-50" : undefined}
+						/>
+					</PaginationItem>
+				</PaginationContent>
+			</Pagination>
 		</div>
 	);
 }

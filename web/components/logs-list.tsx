@@ -40,7 +40,7 @@ export function LogsList({ logs }: LogsListProps) {
 
 	return (
 		<Card className="rounded-2xl border w-full">
-			<ScrollArea className="h-[600px]">
+			<ScrollArea className="h-fit">
 				<Table className="w-full text-sm font-mono">
 					<TableHeader className="sr-only" />
 					<TableBody>
@@ -59,7 +59,7 @@ export function LogsList({ logs }: LogsListProps) {
 									{log.timestamp}
 								</TableCell>
 
-								<TableCell className="text-sm text-foreground break-words">
+								<TableCell className="text-sm text-foreground whitespace-normal">
 									{log.message}
 								</TableCell>
 							</TableRow>

@@ -4,9 +4,14 @@ import { DeliveriesPage } from "@/components/pages/deliveries";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
 
-export async function clientLoader() {
-	const deliveries = await getDeliveries();
-	return { deliveries };
+const DEFAULT_LIMIT = 20;
+
+export async function clientLoader({ request }: { request: Request }) {
+	const url = new URL(request.url);
+	const page = Number(url.searchParams.get("page")) || 0;
+	const limit = Number(url.searchParams.get("limit")) || DEFAULT_LIMIT;
+	const deliveries = await getDeliveries({ page, limit });
+	return { deliveries, page, limit };
 }
 
 export function HydrateFallback() {
@@ -31,7 +36,13 @@ export function HydrateFallback() {
 export default function Deliveries({
 	loaderData,
 }: {
-	loaderData: { deliveries: Delivery[] };
+	loaderData: { deliveries: Delivery[]; page: number; limit: number };
 }) {
-	return <DeliveriesPage deliveries={loaderData.deliveries} />;
+	return (
+		<DeliveriesPage
+			deliveries={loaderData.deliveries}
+			page={loaderData.page}
+			limit={loaderData.limit}
+		/>
+	);
 }
