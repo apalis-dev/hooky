@@ -1,15 +1,58 @@
-import { Link } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { Plus, Search } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { WebhookTable } from "../webhook-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+	Pagination,
+	PaginationContent,
+	PaginationItem,
+	PaginationNext,
+	PaginationPrevious,
+} from "@/components/ui/pagination";
+import type { Webhook } from "@/lib/types";
 
-export function WebhooksPage() {
+interface WebhooksPageProps {
+	webhooks: Webhook[];
+	page: number;
+	limit: number;
+}
+
+const STATUS_FILTERS = ["all", "active", "inactive"] as const;
+
+export function WebhooksPage({ webhooks, page, limit }: WebhooksPageProps) {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [statusFilter, setStatusFilter] = useState("all");
+	const navigate = useNavigate();
+
+	const hasMore = webhooks.length === limit;
+
+	const handlePrev = () => {
+		if (page > 0) {
+			navigate(`?page=${page - 1}&limit=${limit}`);
+		}
+	};
+
+	const handleNext = () => {
+		if (hasMore) {
+			navigate(`?page=${page + 1}&limit=${limit}`);
+		}
+	};
+
+	const filtered = useMemo(() => {
+		return webhooks.filter((w) => {
+			const matchesStatus =
+				statusFilter === "all" || w.status === statusFilter;
+			const matchesSearch =
+				!searchTerm ||
+				w.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				w.url.toLowerCase().includes(searchTerm.toLowerCase());
+			return matchesStatus && matchesSearch;
+		});
+	}, [webhooks, statusFilter, searchTerm]);
 
 	return (
 		<div className="p-8 space-y-6">
@@ -38,7 +81,7 @@ export function WebhooksPage() {
 			</div>
 			<Tabs value={statusFilter} onValueChange={setStatusFilter}>
 				<TabsList>
-					{["all", "active", "disabled"].map((filter) => (
+					{STATUS_FILTERS.map((filter) => (
 						<TabsTrigger key={filter} value={filter}>
 							{filter.charAt(0).toUpperCase() + filter.slice(1)}
 						</TabsTrigger>
@@ -46,8 +89,34 @@ export function WebhooksPage() {
 				</TabsList>
 			</Tabs>
 			<Card className="overflow-hidden">
-				<WebhookTable />
+				<WebhookTable webhooks={filtered} />
 			</Card>
+			<Pagination>
+				<PaginationContent>
+					<PaginationItem>
+						<PaginationPrevious
+							href={`?page=${page - 1}&limit=${limit}`}
+							onClick={(e) => {
+								e.preventDefault();
+								handlePrev();
+							}}
+							aria-disabled={page === 0}
+							className={page === 0 ? "pointer-events-none opacity-50" : undefined}
+						/>
+					</PaginationItem>
+					<PaginationItem>
+						<PaginationNext
+							href={`?page=${page + 1}&limit=${limit}`}
+							onClick={(e) => {
+								e.preventDefault();
+								handleNext();
+							}}
+							aria-disabled={!hasMore}
+							className={!hasMore ? "pointer-events-none opacity-50" : undefined}
+						/>
+					</PaginationItem>
+				</PaginationContent>
+			</Pagination>
 		</div>
 	);
 }

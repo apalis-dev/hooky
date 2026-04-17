@@ -1,4 +1,5 @@
 import { Inbox } from "lucide-react";
+import type { Event } from "@/lib/types";
 import {
 	Table,
 	TableBody,
@@ -8,56 +9,12 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 
-const recentEvents = [
-	{
-		id: 1,
-		event: "user.created",
-		status: "success",
-		timestamp: "2025-12-08 14:32:00",
-		duration: "145ms",
-		endpoint: "https://api.example.com/webhooks",
-		attempts: 1,
-	},
-	{
-		id: 2,
-		event: "order.completed",
-		status: "success",
-		timestamp: "2025-12-08 14:31:15",
-		duration: "234ms",
-		endpoint: "https://api.example.com/orders",
-		attempts: 1,
-	},
-	{
-		id: 3,
-		event: "payment.failed",
-		status: "failed",
-		timestamp: "2025-12-08 14:28:42",
-		duration: "156ms",
-		endpoint: "https://payment.example.com/webhook",
-		attempts: 3,
-	},
-	{
-		id: 4,
-		event: "user.updated",
-		status: "success",
-		timestamp: "2025-12-08 14:25:00",
-		duration: "89ms",
-		endpoint: "https://api.example.com/webhooks",
-		attempts: 1,
-	},
-	{
-		id: 5,
-		event: "invoice.generated",
-		status: "success",
-		timestamp: "2025-12-08 14:22:30",
-		duration: "512ms",
-		endpoint: "https://billing.example.com/invoice",
-		attempts: 2,
-	},
-];
+interface RecentEventsTableProps {
+	events: Event[];
+}
 
-export function RecentEventsTable() {
-	if (recentEvents.length === 0) {
+export function RecentEventsTable({ events }: RecentEventsTableProps) {
+	if (events.length === 0) {
 		return (
 			<div className="flex flex-col items-center justify-center py-16 text-center">
 				<Inbox
@@ -98,7 +55,7 @@ export function RecentEventsTable() {
 				</TableHeader>
 
 				<TableBody>
-					{recentEvents.map((event) => (
+					{events.map((event) => (
 						<TableRow
 							key={event.id}
 							className="border-b last:border-0 hover:bg-muted/40 transition-colors"
@@ -128,14 +85,14 @@ export function RecentEventsTable() {
 								<div className="flex items-center justify-end gap-2 text-sm">
 									<span
 										className={
-											event.status === "success"
+											event.status === "delivered"
 												? "h-1.5 w-1.5 rounded-full bg-emerald-500"
 												: "h-1.5 w-1.5 rounded-full bg-red-500"
 										}
 									/>
 									<span
 										className={
-											event.status === "success"
+											event.status === "delivered"
 												? "text-emerald-600"
 												: "text-red-600"
 										}

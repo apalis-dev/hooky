@@ -1,5 +1,6 @@
 import { Eye, EyeOff, Copy, RotateCw } from "lucide-react";
 import { useState } from "react";
+import { Form, useFetcher } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,11 +11,18 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import type { Settings } from "@/lib/types";
 
-export function SettingsPage() {
+interface SettingsPageProps {
+	settings: Settings;
+}
+
+export function SettingsPage({ settings }: SettingsPageProps) {
 	const [showSecret, setShowSecret] = useState(false);
 	const [showApiKey, setShowApiKey] = useState(false);
 	const [copied, setCopied] = useState("");
+	const fetcher = useFetcher();
+	const isSaving = fetcher.state !== "idle";
 
 	const handleCopy = (text: string, id: string) => {
 		navigator.clipboard.writeText(text);
@@ -151,36 +159,43 @@ export function SettingsPage() {
 					</CardDescription>
 				</CardHeader>
 
-				<CardContent className="space-y-4">
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-						<div className="space-y-1.5">
-							<Label htmlFor="timeout" className="text-xs">
-								Timeout (seconds)
-							</Label>
-							<Input
-								id="timeout"
-								type="number"
-								defaultValue="30"
-								className="text-sm"
-							/>
+				<CardContent>
+					<fetcher.Form method="POST" className="space-y-4">
+						<input type="hidden" name="enabled" value={String(settings.enabled)} />
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div className="space-y-1.5">
+								<Label htmlFor="timeout" className="text-xs">
+									Timeout (seconds)
+								</Label>
+								<Input
+									id="timeout"
+									name="timeout_seconds"
+									type="number"
+									defaultValue={settings.timeout_seconds}
+									className="text-sm"
+								/>
+							</div>
+
+							<div className="space-y-1.5">
+								<Label htmlFor="max-retries" className="text-xs">
+									Max Retries
+								</Label>
+								<Input
+									id="max-retries"
+									name="retry_attempts"
+									type="number"
+									defaultValue={settings.retry_attempts}
+									className="text-sm"
+								/>
+							</div>
 						</div>
 
-						<div className="space-y-1.5">
-							<Label htmlFor="max-retries" className="text-xs">
-								Max Retries
-							</Label>
-							<Input
-								id="max-retries"
-								type="number"
-								defaultValue="3"
-								className="text-sm"
-							/>
+						<div className="flex justify-end">
+							<Button type="submit" size="sm" disabled={isSaving}>
+								{isSaving ? "Saving..." : "Save"}
+							</Button>
 						</div>
-					</div>
-
-					<div className="flex justify-end">
-						<Button size="sm">Save</Button>
-					</div>
+					</fetcher.Form>
 				</CardContent>
 			</Card>
 		</div>
