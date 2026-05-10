@@ -1,6 +1,6 @@
 # hooky
 
-**hooky** is an [apalis](https://github.com/apalis-dev/apalis) based webhook dispatch service built with **Rust** and **Next.js**.  
+**hooky** is an [apalis](https://github.com/apalis-dev/apalis) based webhook dispatch service built with **Rust** and **Remix**.  
 It provides a fast, reliable backend for receiving and dispatching webhooks, and a modern web frontend for managing endpoints and events.
 
 ![Webhook](assets/webhook.png)
