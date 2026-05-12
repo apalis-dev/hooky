@@ -1,5 +1,6 @@
 import { redirect } from "react-router";
 import { createWebhook, getEventTypes } from "@/lib/api";
+import type { EventType } from "@/lib/types";
 import { CreateWebhookPage } from "@/components/pages/create-webhook";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -56,7 +57,7 @@ export async function clientAction({ request }: { request: Request }) {
 export default function CreateWebhook({
 	loaderData,
 }: {
-	loaderData: { eventTypes: string[] };
+	loaderData: { eventTypes: EventType[] };
 }) {
 	return <CreateWebhookPage eventTypes={loaderData.eventTypes} />;
 }

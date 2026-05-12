@@ -15,10 +15,10 @@ export async function clientLoader({ request }: { request: Request }) {
 }
 
 export async function clientAction({ request }: { request: Request }) {
-  const formData = await request.formData();
-  const webhookId = Number(formData.get("webhookId"));
-  await deleteWebhook(webhookId);
-  return { ok: true };
+	const formData = await request.formData();
+	const webhookId = formData.get("webhookId") as string;
+	await deleteWebhook(webhookId);
+	return { ok: true };
 }
 
 export function HydrateFallback() {

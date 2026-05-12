@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 export async function clientLoader({
 	params,
 }: { params: { id: string } }) {
-	const delivery = await getDelivery(Number(params.id));
+	const delivery = await getDelivery(params.id);
 	return { delivery };
 }
 

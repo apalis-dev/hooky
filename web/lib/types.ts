@@ -1,13 +1,13 @@
-
 export interface Log {
   id: number;
+  webhook_id: string | undefined;
   level: string;
   timestamp: string;
   message: string;
 }
 
 export interface Webhook {
-  id: number;
+  id: string;
   name: string;
   url: string;
   status: string;
@@ -19,6 +19,12 @@ export interface CreateWebhook {
   url: string;
 }
 
+export interface EventType {
+  id: string;
+  webhook_id: string;
+  name: string;
+}
+
 export interface UpdateWebhook {
   name?: string;
   url?: string;
@@ -26,40 +32,44 @@ export interface UpdateWebhook {
 }
 
 export interface Delivery {
-  id: number;
-  event: string;
-  status: number;
-  duration: string;
-  timestamp: string;
+  id: string;
+  event_id: string;
+  webhook_id: string;
+  status_code: number;
   success: boolean;
+  duration_ms: number;
+  timestamp: string;
 }
 
 export interface CreateDelivery {
-  event: string;
-  status: number;
-  duration: string;
+  event_id: string;
+  webhook_id: string;
+  status_code: number;
   success: boolean;
+  duration_ms: number;
 }
 
 export interface Event {
-  id: number;
-  event: string;
+  attempts: number;
+  duration_ms: number;
+  event_type_id: string;
+  id: string;
   status: string;
   timestamp: string;
-  duration: string;
-  endpoint: string;
-  attempts: number;
+  webhook_id: string;
 }
 
 export interface CreateEvent {
-  event: string;
-  status: string;
-  duration: string;
-  endpoint: string;
-  attempts: number;
+  webhook_id: string;
+  event_type_id: string;
+  status?: string;
+  duration_ms: number;
+  attempts?: number;
 }
 
 export interface Settings {
+  id: string;
+  event_type_id: string;
   retry_attempts: number;
   timeout_seconds: number;
   enabled: boolean;

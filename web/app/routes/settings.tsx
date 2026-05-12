@@ -1,12 +1,18 @@
-import { getSettings, updateSettings } from "@/lib/api";
-import type { Settings } from "@/lib/types";
+import { getEventTypes, getSettings, updateSettings } from "@/lib/api";
+import type { Settings, EventType } from "@/lib/types";
 import { SettingsPage } from "@/components/pages/settings";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 export async function clientLoader() {
-	const settings = await getSettings();
-	return { settings };
+	const eventTypes = await getEventTypes();
+	
+	if (eventTypes.length === 0) {
+		return { eventTypes: [], settings: null };
+	}
+	
+	const settings = await getSettings(eventTypes[0].id);
+	return { eventTypes, settings };
 }
 
 export function HydrateFallback() {
@@ -57,19 +63,23 @@ export function HydrateFallback() {
 
 export async function clientAction({ request }: { request: Request }) {
 	const formData = await request.formData();
-	const settings: Settings = {
+	const eventTypeId = formData.get("eventTypeId") as string;
+	const settings = {
 		retry_attempts: Number(formData.get("retry_attempts")),
 		timeout_seconds: Number(formData.get("timeout_seconds")),
 		enabled: formData.get("enabled") === "true",
 	};
-	const updated = await updateSettings(settings);
+	const updated = await updateSettings(eventTypeId, settings);
 	return { settings: updated };
 }
 
 export default function SettingsRoute({
 	loaderData,
 }: {
-	loaderData: { settings: Settings };
+	loaderData: { eventTypes: EventType[]; settings: Settings | null };
 }) {
-	return <SettingsPage settings={loaderData.settings} />;
+	return <SettingsPage 
+		eventTypes={loaderData.eventTypes} 
+		settings={loaderData.settings} 
+	/>;
 }

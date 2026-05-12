@@ -13,9 +13,10 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import type { EventType } from "@/lib/types";
 
 interface CreateWebhookPageProps {
-	eventTypes: string[];
+	eventTypes: EventType[];
 }
 
 export function CreateWebhookPage({ eventTypes }: CreateWebhookPageProps) {
@@ -23,6 +24,14 @@ export function CreateWebhookPage({ eventTypes }: CreateWebhookPageProps) {
 	const navigation = useNavigation();
 	const isSubmitting = navigation.state === "submitting";
 	const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
+
+	const toggleEvent = (eventId: string, checked: boolean) => {
+		if (checked) {
+			setSelectedEvents([...selectedEvents, eventId]);
+		} else {
+			setSelectedEvents(selectedEvents.filter((e) => e !== eventId));
+		}
+	};
 
 	return (
 		<div className="p-8 space-y-8">
@@ -94,22 +103,14 @@ export function CreateWebhookPage({ eventTypes }: CreateWebhookPageProps) {
 								<div className="space-y-1">
 									{eventTypes.map((event) => (
 										<Label
-											key={event}
+											key={event.id}
 											className="flex items-center gap-3 rounded-md px-2 py-2 hover:bg-muted/50 cursor-pointer"
 										>
 											<Checkbox
-												checked={selectedEvents.includes(event)}
-												onCheckedChange={(checked) => {
-													if (checked) {
-														setSelectedEvents([...selectedEvents, event]);
-													} else {
-														setSelectedEvents(
-															selectedEvents.filter((e) => e !== event),
-														);
-													}
-												}}
+												checked={selectedEvents.includes(event.id)}
+												onCheckedChange={(checked) => toggleEvent(event.id, checked as boolean)}
 											/>
-											<span className="text-sm text-foreground">{event}</span>
+											<span className="text-sm text-foreground">{event.name}</span>
 										</Label>
 									))}
 								</div>

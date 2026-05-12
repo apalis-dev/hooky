@@ -10,6 +10,7 @@ import type {
   PaginationParams,
   HealthResponse,
   Event,
+  EventType,
 } from "./types";
 
 const BASE_URL =
@@ -90,17 +91,23 @@ export const getHealth = () => get<HealthResponse>("/health");
 // Webhooks
 export const getWebhooks = (params?: PaginationParams) =>
   get<Webhook[]>(`/webhooks${buildQuery(params)}`);
-export const getWebhook = (id: number) => get<Webhook>(`/webhooks/${id}`);
+export const getWebhook = (id: string) => get<Webhook>(`/webhooks/${id}`);
 export const createWebhook = (data: CreateWebhook) =>
   post<Webhook>("/webhooks", data);
-export const updateWebhook = (id: number, data: UpdateWebhook) =>
+export const updateWebhook = (id: string, data: UpdateWebhook) =>
   put<Webhook>(`/webhooks/${id}`, data);
-export const deleteWebhook = (id: number) => del(`/webhooks/${id}`);
+export const deleteWebhook = (id: string) => del(`/webhooks/${id}`);
+export const getWebhookEventTypes = (webhookId: string) =>
+  get<EventType[]>(`/webhooks/${webhookId}/event-types`);
+export const getWebhookDeliveries = (webhookId: string, params?: PaginationParams) =>
+  get<Delivery[]>(`/webhooks/${webhookId}/deliveries${buildQuery(params)}`);
+export const getWebhookEvents = (webhookId: string, params?: PaginationParams) =>
+  get<Event[]>(`/webhooks/${webhookId}/events${buildQuery(params)}`);
 
 // Deliveries
 export const getDeliveries = (params?: PaginationParams) =>
   get<Delivery[]>(`/deliveries${buildQuery(params)}`);
-export const getDelivery = (id: number) =>
+export const getDelivery = (id: string) =>
   get<Delivery>(`/deliveries/${id}`);
 export const createDelivery = (data: CreateDelivery) =>
   post<Delivery>("/deliveries", data);
@@ -108,10 +115,16 @@ export const createDelivery = (data: CreateDelivery) =>
 // Events
 export const getEvents = (params?: PaginationParams) =>
   get<Event[]>(`/events${buildQuery(params)}`);
-export const getEvent = (id: number) => get<Event>(`/events/${id}`);
+export const getEvent = (id: string) => get<Event>(`/events/${id}`);
 export const createEvent = (data: CreateEvent) =>
   post<Event>("/events", data);
-export const getEventTypes = () => get<string[]>("/event-types");
+export const getEventTypes = () => get<EventType[]>("/event-types");
+export const createEventType = (data: { webhook_id: string; name: string }) =>
+  post<EventType>("/event-types", data);
+
+// Dispatch
+export const dispatch = (data: { webhook_name: string; event_type: string; payload: unknown }) =>
+  post<{ event_id: string; task_id: string }>("/dispatch", data);
 
 // Logs
 export const getLogs = (params?: PaginationParams) =>
@@ -119,7 +132,8 @@ export const getLogs = (params?: PaginationParams) =>
 export const createLog = (data: { level: string; message: string }) =>
   post<void>("/logs", data);
 
-// Settings
-export const getSettings = () => get<Settings>("/settings");
-export const updateSettings = (data: Settings) =>
-  put<Settings>("/settings", data);
+// Settings (per event type)
+export const getSettings = (eventTypeId: string) =>
+  get<Settings>(`/event-types/${eventTypeId}/settings`);
+export const updateSettings = (eventTypeId: string, data: Partial<Settings>) =>
+  put<Settings>(`/event-types/${eventTypeId}/settings`, data);

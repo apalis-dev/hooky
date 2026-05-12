@@ -8,7 +8,7 @@ use crate::app::AppState;
 
 #[derive(Debug, Serialize, Deserialize, sqlx::FromRow, ToSchema)]
 pub struct Log {
-    id: i64,
+    id: String,
     webhook_id: Option<String>,
     level: String,
     message: String,

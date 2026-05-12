@@ -1,6 +1,6 @@
 import { Eye, EyeOff, Copy, RotateCw } from "lucide-react";
 import { useState } from "react";
-import { Form, useFetcher } from "react-router";
+import { Form, useFetcher, useLoaderData } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,16 +11,25 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import type { Settings } from "@/lib/types";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import type { Settings, EventType } from "@/lib/types";
 
 interface SettingsPageProps {
-	settings: Settings;
+	eventTypes: EventType[];
+	settings: Settings | null;
 }
 
-export function SettingsPage({ settings }: SettingsPageProps) {
+export function SettingsPage({ eventTypes, settings }: SettingsPageProps) {
 	const [showSecret, setShowSecret] = useState(false);
 	const [showApiKey, setShowApiKey] = useState(false);
 	const [copied, setCopied] = useState("");
+	const [selectedEventType, setSelectedEventType] = useState(eventTypes[0]?.id || "");
 	const fetcher = useFetcher();
 	const isSaving = fetcher.state !== "idle";
 
@@ -155,13 +164,19 @@ export function SettingsPage({ settings }: SettingsPageProps) {
 						Delivery Configuration
 					</CardTitle>
 					<CardDescription className="text-xs">
-						Control webhook retry behavior
+						Control webhook retry behavior per event type
 					</CardDescription>
 				</CardHeader>
 
 				<CardContent>
+					{eventTypes.length === 0 ? (
+						<p className="text-muted-foreground text-sm">
+							No event types configured. Create a webhook with event types first.
+						</p>
+					) : (
 					<fetcher.Form method="POST" className="space-y-4">
-						<input type="hidden" name="enabled" value={String(settings.enabled)} />
+						<input type="hidden" name="eventTypeId" value={selectedEventType} />
+						<input type="hidden" name="enabled" value={String(settings?.enabled ?? true)} />
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 							<div className="space-y-1.5">
 								<Label htmlFor="timeout" className="text-xs">
@@ -171,7 +186,7 @@ export function SettingsPage({ settings }: SettingsPageProps) {
 									id="timeout"
 									name="timeout_seconds"
 									type="number"
-									defaultValue={settings.timeout_seconds}
+									defaultValue={settings?.timeout_seconds ?? 30}
 									className="text-sm"
 								/>
 							</div>
@@ -184,7 +199,7 @@ export function SettingsPage({ settings }: SettingsPageProps) {
 									id="max-retries"
 									name="retry_attempts"
 									type="number"
-									defaultValue={settings.retry_attempts}
+									defaultValue={settings?.retry_attempts ?? 3}
 									className="text-sm"
 								/>
 							</div>
@@ -196,6 +211,7 @@ export function SettingsPage({ settings }: SettingsPageProps) {
 							</Button>
 						</div>
 					</fetcher.Form>
+					)}
 				</CardContent>
 			</Card>
 		</div>
