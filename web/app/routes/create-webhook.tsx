@@ -1,14 +1,14 @@
 import { redirect } from "react-router";
-import { createWebhook, getEventTypes } from "@/lib/api";
-import type { EventType } from "@/lib/types";
+import { z } from "zod";
+import { createWebhook } from "@/lib/api";
 import { CreateWebhookPage } from "@/components/pages/create-webhook";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
-export async function clientLoader() {
-	const eventTypes = await getEventTypes();
-	return { eventTypes };
-}
+const createWebhookSchema = z.object({
+	name: z.string().trim().min(1, "Name is required."),
+	url: z.string().trim().url("Enter a valid URL."),
+});
 
 export function HydrateFallback() {
 	return (
@@ -48,16 +48,19 @@ export function HydrateFallback() {
 
 export async function clientAction({ request }: { request: Request }) {
 	const formData = await request.formData();
-	const name = formData.get("name") as string;
-	const url = formData.get("url") as string;
-	await createWebhook({ name, url });
+	const result = createWebhookSchema.safeParse({
+		name: formData.get("name"),
+		url: formData.get("url"),
+	});
+
+	if (!result.success) {
+		return { ok: false, error: result.error.issues[0]?.message };
+	}
+
+	await createWebhook(result.data);
 	return redirect("/webhooks");
 }
 
-export default function CreateWebhook({
-	loaderData,
-}: {
-	loaderData: { eventTypes: EventType[] };
-}) {
-	return <CreateWebhookPage eventTypes={loaderData.eventTypes} />;
+export default function CreateWebhook() {
+	return <CreateWebhookPage />;
 }

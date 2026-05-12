@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import {
   useNavigate,
   Form,
@@ -116,10 +116,15 @@ export function WebhookDetailPage({
 }: WebhookDetailPageProps) {
   const navigate = useNavigate();
   const createEventTypeFetcher = useFetcher<{ ok: boolean }>();
-  const dispatchFetcher = useFetcher<{ ok: boolean; event?: Event }>();
+  const dispatchFetcher = useFetcher<{
+    ok: boolean;
+    event?: Event;
+    error?: string;
+  }>();
   const [isDispatchOpen, setIsDispatchOpen] = useState(false);
   const [isAddEventTypeOpen, setIsAddEventTypeOpen] = useState(false);
   const [dispatchPayload, setDispatchPayload] = useState("{}");
+  const [dispatchPayloadError, setDispatchPayloadError] = useState("");
   const [copied, setCopied] = useState(false);
 
   const webhookStatus = getWebhookStatusStyles(webhook.status);
@@ -128,6 +133,19 @@ export function WebhookDetailPage({
     navigator.clipboard.writeText(webhook.url);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
+  };
+
+  const handleDispatchSubmit = (event: FormEvent<HTMLFormElement>) => {
+    try {
+      JSON.parse(dispatchPayload || "{}");
+    } catch {
+      event.preventDefault();
+      setDispatchPayloadError("Payload must be valid JSON.");
+      return;
+    }
+
+    setDispatchPayloadError("");
+    setIsDispatchOpen(false);
   };
 
   return (
@@ -401,7 +419,7 @@ export function WebhookDetailPage({
                 <dispatchFetcher.Form
                   method="post"
                   className="space-y-4"
-                  onSubmit={() => setIsDispatchOpen(false)}
+                  onSubmit={handleDispatchSubmit}
                 >
                   <input type="hidden" name="intent" value="dispatch" />
 
@@ -427,13 +445,19 @@ export function WebhookDetailPage({
                       id="payload"
                       name="payload"
                       value={dispatchPayload}
-                      onChange={(event) =>
-                        setDispatchPayload(event.target.value)
-                      }
+                      onChange={(event) => {
+                        setDispatchPayload(event.target.value);
+                        setDispatchPayloadError("");
+                      }}
                       placeholder='{"key": "value"}'
                       rows={8}
                       className="font-mono text-sm"
                     />
+                    {(dispatchPayloadError || dispatchFetcher.data?.error) && (
+                      <p className="text-xs text-red-600">
+                        {dispatchPayloadError || dispatchFetcher.data?.error}
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex justify-end">

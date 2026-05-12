@@ -21,7 +21,12 @@ interface WebhooksPageProps {
 	limit: number;
 }
 
-const STATUS_FILTERS = ["all", "active", "inactive"] as const;
+const STATUS_FILTERS = [
+	{ value: "all", label: "All" },
+	{ value: "active", label: "Active" },
+	{ value: "disabled", label: "Disabled" },
+	{ value: "paused", label: "Paused" },
+] as const;
 
 export function WebhooksPage({ webhooks, page, limit }: WebhooksPageProps) {
 	const [searchTerm, setSearchTerm] = useState("");
@@ -82,8 +87,8 @@ export function WebhooksPage({ webhooks, page, limit }: WebhooksPageProps) {
 			<Tabs value={statusFilter} onValueChange={setStatusFilter}>
 				<TabsList>
 					{STATUS_FILTERS.map((filter) => (
-						<TabsTrigger key={filter} value={filter}>
-							{filter.charAt(0).toUpperCase() + filter.slice(1)}
+						<TabsTrigger key={filter.value} value={filter.value}>
+							{filter.label}
 						</TabsTrigger>
 					))}
 				</TabsList>

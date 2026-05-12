@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router";
+import { Form, useActionData, useNavigate, useNavigation } from "react-router";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,9 @@ export function EventSettingsPage({
   settings,
 }: EventSettingsPageProps) {
   const navigate = useNavigate();
+  const navigation = useNavigation();
+  const actionData = useActionData() as { error?: string } | undefined;
+  const isSubmitting = navigation.state === "submitting";
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -69,7 +72,7 @@ export function EventSettingsPage({
           </CardHeader>
 
           <CardContent className="px-6 py-6">
-            <form method="post" className="space-y-8">
+            <Form method="post" className="space-y-8">
               <div className="grid gap-6 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="retry_attempts">Retry Attempts</Label>
@@ -115,16 +118,24 @@ export function EventSettingsPage({
                     </p>
                   </div>
 
-                  <Switch
-                    id="enabled"
-                    name="enabled"
-                    defaultChecked={settings.enabled}
-                    value="true"
-                  />
+                  <div>
+                    <input type="hidden" name="enabled" value="false" />
+                    <Switch
+                      id="enabled"
+                      name="enabled"
+                      defaultChecked={settings.enabled}
+                      value="true"
+                    />
+                  </div>
                 </div>
               </div>
 
               <div className="flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:justify-end">
+                {actionData?.error && (
+                  <p className="self-center text-sm text-red-600 sm:mr-auto">
+                    {actionData.error}
+                  </p>
+                )}
                 <Button
                   type="button"
                   variant="outline"
@@ -132,9 +143,11 @@ export function EventSettingsPage({
                 >
                   Cancel
                 </Button>
-                <Button type="submit">Save Settings</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Saving..." : "Save Settings"}
+                </Button>
               </div>
-            </form>
+            </Form>
           </CardContent>
         </Card>
       </div>

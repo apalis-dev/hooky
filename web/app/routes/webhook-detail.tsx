@@ -1,4 +1,5 @@
 import { redirect } from "react-router";
+import { z } from "zod";
 import {
   getWebhook,
   getWebhookEventTypes,
@@ -24,6 +25,30 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 const PENDING_EVENT_STATUSES = new Set(["sending", "submitting"]);
+const webhookStatusSchema = z.enum(["active", "disabled", "paused"]);
+const eventTypeNameSchema = z.string().trim().min(1, "Event name is required.");
+const settingsSchema = z.object({
+  retry_attempts: z.coerce.number().int().min(0).max(10),
+  timeout_seconds: z.coerce.number().int().min(1).max(300),
+  enabled: z.boolean(),
+});
+const dispatchSchema = z.object({
+  eventType: z.string().trim().min(1, "Event type is required."),
+  payload: z
+    .string()
+    .default("{}")
+    .transform((value, ctx) => {
+      try {
+        return JSON.parse(value || "{}");
+      } catch {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Payload must be valid JSON.",
+        });
+        return z.NEVER;
+      }
+    }),
+});
 
 async function waitForEventToSettle(eventId: string) {
   for (let attempt = 0; attempt < 8; attempt++) {
@@ -80,7 +105,7 @@ export async function clientAction({
   const intent = formData.get("intent");
 
   if (intent === "updateStatus") {
-    const status = formData.get("status") as string;
+    const status = webhookStatusSchema.parse(formData.get("status"));
     await updateWebhook(params.id, { status });
     return { ok: true };
   }
@@ -91,20 +116,26 @@ export async function clientAction({
   }
 
   if (intent === "createEventType") {
-    const name = formData.get("name") as string;
+    const name = eventTypeNameSchema.parse(formData.get("name"));
     await createEventType({ webhook_id: params.id, name });
     return { ok: true };
   }
 
   if (intent === "dispatch") {
-    const eventType = formData.get("eventType") as string;
-    const payloadStr = formData.get("payload") as string;
-    const payload = JSON.parse(payloadStr || "{}");
+    const result = dispatchSchema.safeParse({
+      eventType: formData.get("eventType"),
+      payload: formData.get("payload"),
+    });
+
+    if (!result.success) {
+      return { ok: false, error: result.error.issues[0]?.message };
+    }
+
     const webhook = await getWebhook(params.id);
     const dispatched = await dispatch({
       webhook_name: webhook.name,
-      event_type: eventType,
-      payload,
+      event_type: result.data.eventType,
+      payload: result.data.payload,
     });
     const event = await waitForEventToSettle(dispatched.event_id);
     return { ok: true, event };
@@ -112,12 +143,17 @@ export async function clientAction({
 
   if (intent === "saveSettings") {
     const eventTypeId = formData.get("eventTypeId") as string;
-    const settings = {
-      retry_attempts: Number(formData.get("retry_attempts")),
-      timeout_seconds: Number(formData.get("timeout_seconds")),
-      enabled: formData.get("enabled") === "true",
-    };
-    await updateSettings(eventTypeId, settings);
+    const result = settingsSchema.safeParse({
+      retry_attempts: formData.get("retry_attempts"),
+      timeout_seconds: formData.get("timeout_seconds"),
+      enabled: formData.getAll("enabled").includes("true"),
+    });
+
+    if (!result.success) {
+      return { ok: false, error: result.error.issues[0]?.message };
+    }
+
+    await updateSettings(eventTypeId, result.data);
     return { ok: true };
   }
 

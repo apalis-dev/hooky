@@ -1,11 +1,8 @@
-import { useState } from "react";
-import { Form, useNavigate, useNavigation } from "react-router";
+import { Form, useActionData, useNavigate, useNavigation } from "react-router";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
 	Card,
 	CardContent,
@@ -13,25 +10,12 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import type { EventType } from "@/lib/types";
 
-interface CreateWebhookPageProps {
-	eventTypes: EventType[];
-}
-
-export function CreateWebhookPage({ eventTypes }: CreateWebhookPageProps) {
+export function CreateWebhookPage() {
 	const navigate = useNavigate();
 	const navigation = useNavigation();
+	const actionData = useActionData() as { error?: string } | undefined;
 	const isSubmitting = navigation.state === "submitting";
-	const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
-
-	const toggleEvent = (eventId: string, checked: boolean) => {
-		if (checked) {
-			setSelectedEvents([...selectedEvents, eventId]);
-		} else {
-			setSelectedEvents(selectedEvents.filter((e) => e !== eventId));
-		}
-	};
 
 	return (
 		<div className="p-8 space-y-8">
@@ -89,37 +73,10 @@ export function CreateWebhookPage({ eventTypes }: CreateWebhookPageProps) {
 					</CardContent>
 				</Card>
 
-				{eventTypes.length > 0 && (
-					<Card className="shadow-sm">
-						<CardHeader>
-							<CardTitle>Events</CardTitle>
-							<CardDescription>
-								Choose which events trigger this webhook.
-							</CardDescription>
-						</CardHeader>
-
-						<CardContent>
-							<ScrollArea className="h-52 pr-2">
-								<div className="space-y-1">
-									{eventTypes.map((event) => (
-										<Label
-											key={event.id}
-											className="flex items-center gap-3 rounded-md px-2 py-2 hover:bg-muted/50 cursor-pointer"
-										>
-											<Checkbox
-												checked={selectedEvents.includes(event.id)}
-												onCheckedChange={(checked) => toggleEvent(event.id, checked as boolean)}
-											/>
-											<span className="text-sm text-foreground">{event.name}</span>
-										</Label>
-									))}
-								</div>
-							</ScrollArea>
-						</CardContent>
-					</Card>
-				)}
-
 				<div className="flex items-center justify-end gap-3">
+					{actionData?.error && (
+						<p className="mr-auto text-sm text-red-600">{actionData.error}</p>
+					)}
 					<Button
 						type="button"
 						variant="outline"
