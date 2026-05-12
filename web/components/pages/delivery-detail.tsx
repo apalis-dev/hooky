@@ -36,13 +36,12 @@ export function DeliveryDetailPage({ delivery }: DeliveryDetailPageProps) {
 
   return (
     <div className="p-8 space-y-8">
-      {/* Header */}
       <div className="flex items-start gap-4">
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
           onClick={() => navigate("/deliveries")}
-          className="mt-1 shrink-0 text-muted-foreground hover:text-foreground"
+          className="mt-1 shrink-0 rounded-full bg-background"
         >
           <ArrowLeft className="h-4 w-4" />
           <span className="sr-only">Back to deliveries</span>
@@ -67,7 +66,6 @@ export function DeliveryDetailPage({ delivery }: DeliveryDetailPageProps) {
       </div>
 
       <div className="max-w-3xl space-y-6">
-        {/* Delivery Information */}
         <Card className="rounded-2xl">
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-medium">
@@ -135,7 +133,6 @@ export function DeliveryDetailPage({ delivery }: DeliveryDetailPageProps) {
           </CardContent>
         </Card>
 
-        {/* Request Payload */}
         <Card className="rounded-2xl">
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-medium">
@@ -166,7 +163,6 @@ export function DeliveryDetailPage({ delivery }: DeliveryDetailPageProps) {
           </CardContent>
         </Card>
 
-        {/* Status Summary */}
         <div className="rounded-2xl border border-dashed p-4">
           <p className="text-sm font-medium">Delivery Status</p>
           <p className="mt-1 text-sm text-muted-foreground">

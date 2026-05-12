@@ -1,4 +1,4 @@
-import { getWebhooks, deleteWebhook } from "@/lib/api";
+import { getWebhooks, deleteWebhook, updateWebhook } from "@/lib/api";
 import type { Webhook } from "@/lib/types";
 import { WebhooksPage } from "@/components/pages/webhooks";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,6 +17,14 @@ export async function clientLoader({ request }: { request: Request }) {
 export async function clientAction({ request }: { request: Request }) {
 	const formData = await request.formData();
 	const webhookId = formData.get("webhookId") as string;
+	const intent = formData.get("intent");
+
+	if (intent === "toggleStatus") {
+		const status = formData.get("status") as string;
+		await updateWebhook(webhookId, { status });
+		return { ok: true };
+	}
+
 	await deleteWebhook(webhookId);
 	return { ok: true };
 }

@@ -3,6 +3,7 @@ import {
   MoreHorizontal,
   Trash2,
   Webhook as WebhookIcon,
+  Power,
 } from "lucide-react";
 import { useFetcher, Link } from "react-router";
 import {
@@ -134,6 +135,21 @@ function WebhookRow({ webhook }: { webhook: Webhook }) {
           </DropdownMenuTrigger>
 
           <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={() =>
+                fetcher.submit(
+                  { 
+                    webhookId: String(webhook.id),
+                    intent: "toggleStatus",
+                    status: webhook.status === "active" ? "disabled" : "active"
+                  },
+                  { method: "POST", action: "/webhooks" }
+                )
+              }
+            >
+              <Power className="h-4 w-4" />
+              {webhook.status === "active" ? "Disable" : "Enable"}
+            </DropdownMenuItem>
             <DropdownMenuItem>
               <Edit className="h-4 w-4" />
               Edit

@@ -15,7 +15,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import {
   Card,
   CardContent,
@@ -46,7 +45,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { Webhook, EventType, Event, Delivery, Settings } from "@/lib/types";
+import type {
+  Webhook,
+  EventType,
+  Event,
+  Delivery,
+  Settings,
+} from "@/lib/types";
 
 interface WebhookDetailPageProps {
   webhook: Webhook;
@@ -119,14 +124,13 @@ export function WebhookDetailPage({
 
   return (
     <div className="p-8 space-y-8">
-      {/* Header */}
       <div className="flex items-start justify-between gap-6">
         <div className="flex items-start gap-4 min-w-0">
           <Button
-            variant="ghost"
+            variant="outline"
             size="icon"
             onClick={() => navigate("/webhooks")}
-            className="mt-1 shrink-0 text-muted-foreground hover:text-foreground"
+            className="mt-1 shrink-0 rounded-full bg-background"
           >
             <ArrowLeft className="h-4 w-4" />
             <span className="sr-only">Back to webhooks</span>
@@ -180,7 +184,6 @@ export function WebhookDetailPage({
         </Form>
       </div>
 
-      {/* Metrics */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card className="rounded-2xl">
           <CardHeader className="pb-2">
@@ -225,7 +228,6 @@ export function WebhookDetailPage({
         </Card>
       </div>
 
-      {/* Configuration */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card className="rounded-2xl">
           <CardHeader className="flex flex-row items-start justify-between gap-4 pb-3">
@@ -295,16 +297,27 @@ export function WebhookDetailPage({
                       <span className="shrink-0 font-mono text-xs text-muted-foreground">
                         {eventType.id.slice(0, 8)}
                       </span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        asChild
-                      >
-                        <Link to={`/webhooks/${webhook.id}/settings/${eventType.id}`}>
+                      <Form method="post">
+                        <input
+                          type="hidden"
+                          name="intent"
+                          value="configureSettings"
+                        />
+                        <input
+                          type="hidden"
+                          name="eventTypeId"
+                          value={eventType.id}
+                        />
+                        <Button
+                          type="submit"
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          title="Configure settings"
+                        >
                           <SettingsIcon className="h-3.5 w-3.5" />
-                        </Link>
-                      </Button>
+                        </Button>
+                      </Form>
                     </div>
                   </div>
                 ))}
