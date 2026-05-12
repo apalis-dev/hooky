@@ -4,6 +4,7 @@ import {
   getWebhookEventTypes,
   getWebhookEvents,
   getWebhookDeliveries,
+  getEvent,
   updateWebhook,
   deleteWebhook,
   createEventType,
@@ -21,6 +22,22 @@ import type {
 import { WebhookDetailPage } from "@/components/pages/webhook-detail";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+
+const PENDING_EVENT_STATUSES = new Set(["sending", "submitting"]);
+
+async function waitForEventToSettle(eventId: string) {
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const event = await getEvent(eventId);
+
+    if (!PENDING_EVENT_STATUSES.has(event.status)) {
+      return event;
+    }
+
+    await new Promise((resolve) => window.setTimeout(resolve, 500));
+  }
+
+  return getEvent(eventId);
+}
 
 export async function clientLoader({ params }: { params: { id: string } }) {
   const [webhook, eventTypes, events, deliveries] = await Promise.all([
@@ -84,12 +101,13 @@ export async function clientAction({
     const payloadStr = formData.get("payload") as string;
     const payload = JSON.parse(payloadStr || "{}");
     const webhook = await getWebhook(params.id);
-    await dispatch({
+    const dispatched = await dispatch({
       webhook_name: webhook.name,
       event_type: eventType,
       payload,
     });
-    return { ok: true };
+    const event = await waitForEventToSettle(dispatched.event_id);
+    return { ok: true, event };
   }
 
   if (intent === "saveSettings") {
