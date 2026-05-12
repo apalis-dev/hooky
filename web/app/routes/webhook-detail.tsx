@@ -11,7 +11,6 @@ import {
   createEventType,
   dispatch,
   getSettings,
-  updateSettings,
 } from "@/lib/api";
 import type {
   Webhook,
@@ -27,11 +26,6 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 const PENDING_EVENT_STATUSES = new Set(["sending", "submitting"]);
 const webhookStatusSchema = z.enum(["active", "disabled", "paused"]);
 const eventTypeNameSchema = z.string().trim().min(1, "Event name is required.");
-const settingsSchema = z.object({
-  retry_attempts: z.coerce.number().int().min(0).max(10),
-  timeout_seconds: z.coerce.number().int().min(1).max(300),
-  enabled: z.boolean(),
-});
 const dispatchSchema = z.object({
   eventType: z.string().trim().min(1, "Event type is required."),
   payload: z
@@ -141,38 +135,12 @@ export async function clientAction({
     return { ok: true, event };
   }
 
-  if (intent === "saveSettings") {
-    const eventTypeId = formData.get("eventTypeId") as string;
-    const result = settingsSchema.safeParse({
-      retry_attempts: formData.get("retry_attempts"),
-      timeout_seconds: formData.get("timeout_seconds"),
-      enabled: formData.getAll("enabled").includes("true"),
-    });
-
-    if (!result.success) {
-      return { ok: false, error: result.error.issues[0]?.message };
-    }
-
-    await updateSettings(eventTypeId, result.data);
-    return { ok: true };
-  }
-
-  if (intent === "configureSettings") {
-    const eventTypeId = formData.get("eventTypeId") as string;
-    await updateSettings(eventTypeId, {
-      retry_attempts: 3,
-      timeout_seconds: 30,
-      enabled: true,
-    });
-    return redirect(`/webhooks/${params.id}/settings/${eventTypeId}`);
-  }
-
   return { ok: false };
 }
 
 export function HydrateFallback() {
   return (
-    <div className="p-8 space-y-6">
+    <div className="mx-auto max-w-5xl px-6 py-8 space-y-6">
       <div className="flex items-start gap-4">
         <Skeleton className="h-10 w-10" />
         <div className="space-y-1">

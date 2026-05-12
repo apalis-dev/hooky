@@ -13,9 +13,16 @@ import {
 } from "@/components/ui/card";
 import type { Settings as SettingsType } from "@/lib/types";
 
+export type EventSettingsValues = Pick<
+  SettingsType,
+  "event_type_id" | "retry_attempts" | "timeout_seconds" | "enabled"
+> & {
+  persisted: boolean;
+};
+
 interface EventSettingsPageProps {
   webhook: { id: string; name: string };
-  settings: SettingsType;
+  settings: EventSettingsValues;
 }
 
 export function EventSettingsPage({
@@ -29,7 +36,7 @@ export function EventSettingsPage({
 
   return (
     <div className="min-h-screen bg-muted/30">
-      <div className="mx-auto max-w-3xl px-6 py-8 space-y-8">
+      <div className="mx-auto max-w-5xl px-6 py-8 space-y-8">
         <div className="flex items-start gap-4">
           <Button
             variant="outline"
@@ -57,6 +64,11 @@ export function EventSettingsPage({
                 {settings.event_type_id}
               </span>
             </p>
+            {!settings.persisted && (
+              <p className="text-xs text-muted-foreground">
+                Using default delivery settings until you save.
+              </p>
+            )}
           </div>
         </div>
 

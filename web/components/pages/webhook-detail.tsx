@@ -149,7 +149,7 @@ export function WebhookDetailPage({
   };
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="mx-auto max-w-5xl px-6 py-8 space-y-8">
       <div className="flex items-start justify-between gap-6">
         <div className="flex items-start gap-4 min-w-0">
           <Button
@@ -337,27 +337,17 @@ export function WebhookDetailPage({
                       <span className="shrink-0 font-mono text-xs text-muted-foreground">
                         {eventType.id.slice(0, 8)}
                       </span>
-                      <Form method="post">
-                        <input
-                          type="hidden"
-                          name="intent"
-                          value="configureSettings"
-                        />
-                        <input
-                          type="hidden"
-                          name="eventTypeId"
-                          value={eventType.id}
-                        />
-                        <Button
-                          type="submit"
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6"
-                          title="Configure settings"
-                        >
+                      <Button
+                        asChild
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        title="Configure settings"
+                      >
+                        <Link to={`/webhooks/${webhook.id}/settings/${eventType.id}`}>
                           <SettingsIcon className="h-3.5 w-3.5" />
-                        </Button>
-                      </Form>
+                        </Link>
+                      </Button>
                     </div>
                   </div>
                 ))}

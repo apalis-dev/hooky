@@ -35,7 +35,7 @@ export function DeliveryDetailPage({ delivery }: DeliveryDetailPageProps) {
   const status = getDeliveryStatusStyles(delivery.success);
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="mx-auto max-w-5xl px-6 py-8 space-y-8">
       <div className="flex items-start gap-4">
         <Button
           variant="outline"
@@ -65,7 +65,7 @@ export function DeliveryDetailPage({ delivery }: DeliveryDetailPageProps) {
         </div>
       </div>
 
-      <div className="max-w-3xl space-y-6">
+      <div className="max-w-5xl space-y-6">
         <Card className="rounded-2xl">
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-medium">

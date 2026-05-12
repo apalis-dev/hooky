@@ -14,7 +14,7 @@ export async function clientLoader({
 
 export function HydrateFallback() {
 	return (
-		<div className="p-8 space-y-6">
+		<div className="mx-auto max-w-5xl px-6 py-8 space-y-6">
 			<div className="flex items-center gap-4">
 				<Skeleton className="h-10 w-10" />
 				<div>

@@ -72,7 +72,7 @@ export function OverviewPage({
   const maxLatency = sortedDurations[sortedDurations.length - 1] || 1;
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="mx-auto max-w-5xl px-6 py-8 space-y-8">
       <div>
         <h1 className="text-3xl font-semibold text-foreground mb-2">
           Overview

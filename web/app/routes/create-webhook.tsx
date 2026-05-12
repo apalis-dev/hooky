@@ -12,7 +12,7 @@ const createWebhookSchema = z.object({
 
 export function HydrateFallback() {
 	return (
-		<div className="p-8 space-y-8">
+		<div className="mx-auto max-w-5xl px-6 py-8 space-y-8">
 			<div className="flex items-start gap-4">
 				<Skeleton className="h-10 w-10 mt-1" />
 				<div className="space-y-1">
