@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { useNavigate, Form, Link } from "react-router";
+import {
+  useNavigate,
+  Form,
+  Link,
+  useFetcher,
+} from "react-router";
 import {
   ArrowLeft,
   Plus,
@@ -110,7 +115,10 @@ export function WebhookDetailPage({
   settings,
 }: WebhookDetailPageProps) {
   const navigate = useNavigate();
+  const createEventTypeFetcher = useFetcher<{ ok: boolean }>();
+  const dispatchFetcher = useFetcher<{ ok: boolean; event?: Event }>();
   const [isDispatchOpen, setIsDispatchOpen] = useState(false);
+  const [isAddEventTypeOpen, setIsAddEventTypeOpen] = useState(false);
   const [dispatchPayload, setDispatchPayload] = useState("{}");
   const [copied, setCopied] = useState(false);
 
@@ -240,7 +248,10 @@ export function WebhookDetailPage({
               </CardDescription>
             </div>
 
-            <Dialog>
+            <Dialog
+              open={isAddEventTypeOpen}
+              onOpenChange={setIsAddEventTypeOpen}
+            >
               <DialogTrigger asChild>
                 <Button size="sm" variant="outline">
                   <Plus className="h-3.5 w-3.5" />
@@ -256,7 +267,11 @@ export function WebhookDetailPage({
                   </DialogDescription>
                 </DialogHeader>
 
-                <Form method="post" className="space-y-4">
+                <createEventTypeFetcher.Form
+                  method="post"
+                  className="space-y-4"
+                  onSubmit={() => setIsAddEventTypeOpen(false)}
+                >
                   <input type="hidden" name="intent" value="createEventType" />
 
                   <div className="space-y-2">
@@ -271,9 +286,16 @@ export function WebhookDetailPage({
                   </div>
 
                   <div className="flex justify-end">
-                    <Button type="submit">Add Event Type</Button>
+                    <Button
+                      type="submit"
+                      disabled={createEventTypeFetcher.state !== "idle"}
+                    >
+                      {createEventTypeFetcher.state !== "idle"
+                        ? "Adding..."
+                        : "Add Event Type"}
+                    </Button>
                   </div>
-                </Form>
+                </createEventTypeFetcher.Form>
               </DialogContent>
             </Dialog>
           </CardHeader>
@@ -376,7 +398,11 @@ export function WebhookDetailPage({
                   </DialogDescription>
                 </DialogHeader>
 
-                <Form method="post" className="space-y-4">
+                <dispatchFetcher.Form
+                  method="post"
+                  className="space-y-4"
+                  onSubmit={() => setIsDispatchOpen(false)}
+                >
                   <input type="hidden" name="intent" value="dispatch" />
 
                   <div className="space-y-2">
@@ -411,9 +437,16 @@ export function WebhookDetailPage({
                   </div>
 
                   <div className="flex justify-end">
-                    <Button type="submit">Dispatch</Button>
+                    <Button
+                      type="submit"
+                      disabled={dispatchFetcher.state !== "idle"}
+                    >
+                      {dispatchFetcher.state !== "idle"
+                        ? "Dispatching..."
+                        : "Dispatch"}
+                    </Button>
                   </div>
-                </Form>
+                </dispatchFetcher.Form>
               </DialogContent>
             </Dialog>
           </CardContent>
