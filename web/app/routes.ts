@@ -10,6 +10,7 @@ export default [
 		index("routes/overview.tsx"),
 		route("webhooks", "routes/webhooks.tsx"),
 		route("webhooks/new", "routes/create-webhook.tsx"),
+		route("webhooks/:id/edit", "routes/edit-webhook.tsx"),
 		route("webhooks/:id", "routes/webhook-detail.tsx"),
 		route("webhooks/:webhookId/settings/:eventTypeId", "routes/event-settings.tsx"),
 		route("deliveries", "routes/deliveries.tsx"),

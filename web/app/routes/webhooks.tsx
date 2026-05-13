@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { getWebhooks, deleteWebhook, updateWebhook } from "@/lib/api";
 import type { Webhook } from "@/lib/types";
 import { WebhooksPage } from "@/components/pages/webhooks";
@@ -5,6 +6,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
 
 const DEFAULT_LIMIT = 10;
+const webhookStatusSchema = z.enum(["active", "disabled", "paused"]);
+const webhookIdSchema = z.string().min(1, "Webhook ID is required.");
 
 export async function clientLoader({ request }: { request: Request }) {
   const url = new URL(request.url);
@@ -16,17 +19,22 @@ export async function clientLoader({ request }: { request: Request }) {
 
 export async function clientAction({ request }: { request: Request }) {
 	const formData = await request.formData();
-	const webhookId = formData.get("webhookId") as string;
 	const intent = formData.get("intent");
 
 	if (intent === "toggleStatus") {
-		const status = formData.get("status") as string;
+		const webhookId = webhookIdSchema.parse(formData.get("webhookId"));
+		const status = webhookStatusSchema.parse(formData.get("status"));
 		await updateWebhook(webhookId, { status });
 		return { ok: true };
 	}
 
-	await deleteWebhook(webhookId);
-	return { ok: true };
+	if (intent === "delete") {
+		const webhookId = webhookIdSchema.parse(formData.get("webhookId"));
+		await deleteWebhook(webhookId);
+		return { ok: true };
+	}
+
+	return { ok: false, error: "Unsupported webhook action." };
 }
 
 export function HydrateFallback() {

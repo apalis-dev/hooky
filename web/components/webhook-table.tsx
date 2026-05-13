@@ -77,12 +77,12 @@ export function WebhookTable({ webhooks }: WebhookTableProps) {
 
 function WebhookRow({ webhook }: { webhook: Webhook }) {
   const fetcher = useFetcher();
-  const isDeleting = fetcher.state !== "idle";
+  const isMutating = fetcher.state !== "idle";
 
   return (
     <TableRow
       className={`border-b last:border-0 hover:bg-muted/40 transition-colors ${
-        isDeleting ? "opacity-50" : ""
+        isMutating ? "opacity-50" : ""
       }`}
     >
       <TableCell className="py-3">
@@ -138,10 +138,10 @@ function WebhookRow({ webhook }: { webhook: Webhook }) {
             <DropdownMenuItem
               onClick={() =>
                 fetcher.submit(
-                  { 
+                  {
                     webhookId: String(webhook.id),
                     intent: "toggleStatus",
-                    status: webhook.status === "active" ? "disabled" : "active"
+                    status: webhook.status === "active" ? "disabled" : "active",
                   },
                   { method: "POST", action: "/webhooks" }
                 )
@@ -150,15 +150,17 @@ function WebhookRow({ webhook }: { webhook: Webhook }) {
               <Power className="h-4 w-4" />
               {webhook.status === "active" ? "Disable" : "Enable"}
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Edit className="h-4 w-4" />
-              Edit
+            <DropdownMenuItem asChild>
+              <Link to={`/webhooks/${webhook.id}/edit`}>
+                <Edit className="h-4 w-4" />
+                Edit
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem
               className="text-red-600"
               onClick={() =>
                 fetcher.submit(
-                  { webhookId: String(webhook.id) },
+                  { webhookId: String(webhook.id), intent: "delete" },
                   { method: "DELETE", action: "/webhooks" }
                 )
               }

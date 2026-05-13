@@ -3,6 +3,7 @@ import { useFetcher } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
 	Card,
 	CardContent,
@@ -65,7 +66,6 @@ export function SettingsPage({
 					) : (
 					<fetcher.Form key={selectedEventType} method="POST" className="space-y-4">
 						<input type="hidden" name="eventTypeId" value={selectedEventType} />
-						<input type="hidden" name="enabled" value={String(settings?.enabled ?? true)} />
 						<div className="space-y-1.5">
 							<Label htmlFor="event-type" className="text-xs">
 								Event Type
@@ -90,6 +90,28 @@ export function SettingsPage({
 									Using default delivery settings until you save.
 								</p>
 							)}
+						</div>
+						<div className="rounded-xl border bg-muted/30 p-4">
+							<div className="flex items-center justify-between gap-4">
+								<div className="space-y-1">
+									<Label htmlFor="settings-enabled" className="text-sm font-medium">
+										Enable Deliveries
+									</Label>
+									<p className="text-xs leading-relaxed text-muted-foreground">
+										Allow this event type to trigger webhook deliveries.
+									</p>
+								</div>
+
+								<div>
+									<input type="hidden" name="enabled" value="false" />
+									<Switch
+										id="settings-enabled"
+										name="enabled"
+										defaultChecked={settings?.enabled ?? true}
+										value="true"
+									/>
+								</div>
+							</div>
 						</div>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 							<div className="space-y-1.5">
