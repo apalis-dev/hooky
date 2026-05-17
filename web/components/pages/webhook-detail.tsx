@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   useNavigate,
   Form,
@@ -9,6 +10,7 @@ import {
   ArrowLeft,
   Plus,
   Play,
+  Edit,
   Trash2,
   Radio,
   Activity,
@@ -57,6 +59,7 @@ import type {
   Delivery,
   Settings,
 } from "@/lib/types";
+import { getWebhookDeliveries, getWebhookEvents } from "@/lib/api";
 
 interface WebhookDetailPageProps {
   webhook: Webhook;
@@ -65,6 +68,13 @@ interface WebhookDetailPageProps {
   deliveries: Delivery[];
   settings: Record<string, Settings>;
 }
+
+const RECENT_ACTIVITY_LIMIT = 10;
+const RECENT_ACTIVITY_POLL_MS = 500;
+const PENDING_EVENT_STATUSES = new Set(["sending", "submitting"]);
+
+const hasPendingEvents = (events: Event[]) =>
+  events.some((event) => PENDING_EVENT_STATUSES.has(event.status));
 
 const getWebhookStatusStyles = (status: string) => {
   switch (status) {
@@ -118,7 +128,8 @@ export function WebhookDetailPage({
   const createEventTypeFetcher = useFetcher<{ ok: boolean }>();
   const dispatchFetcher = useFetcher<{
     ok: boolean;
-    event?: Event;
+    eventId?: string;
+    pollUntil?: number;
     error?: string;
   }>();
   const [isDispatchOpen, setIsDispatchOpen] = useState(false);
@@ -128,6 +139,59 @@ export function WebhookDetailPage({
   const [copied, setCopied] = useState(false);
 
   const webhookStatus = getWebhookStatusStyles(webhook.status);
+  const dispatchedEventId = dispatchFetcher.data?.ok
+    ? dispatchFetcher.data.eventId
+    : undefined;
+  const dispatchedEventPollUntil = dispatchFetcher.data?.pollUntil ?? 0;
+
+  const eventsQuery = useQuery({
+    queryKey: ["webhook-events", webhook.id],
+    queryFn: () =>
+      getWebhookEvents(webhook.id, { limit: RECENT_ACTIVITY_LIMIT }),
+    initialData: events,
+    refetchInterval: (query) => {
+      const queryEvents = query.state.data ?? [];
+      const dispatchedEvent = dispatchedEventId
+        ? queryEvents.find((event) => event.id === dispatchedEventId)
+        : undefined;
+      const dispatchedEventMissing = Boolean(
+        dispatchedEventId &&
+          Date.now() < dispatchedEventPollUntil &&
+          !dispatchedEvent
+      );
+      const dispatchedEventPending = Boolean(
+        dispatchedEvent && PENDING_EVENT_STATUSES.has(dispatchedEvent.status)
+      );
+
+      return dispatchedEventMissing ||
+        dispatchedEventPending ||
+        hasPendingEvents(queryEvents)
+        ? RECENT_ACTIVITY_POLL_MS
+        : false;
+    },
+  });
+  const recentEvents = eventsQuery.data ?? events;
+  const deliveriesQuery = useQuery({
+    queryKey: ["webhook-deliveries", webhook.id],
+    queryFn: () =>
+      getWebhookDeliveries(webhook.id, { limit: RECENT_ACTIVITY_LIMIT }),
+    initialData: deliveries,
+    refetchInterval: (query) => {
+      const queryDeliveries = query.state.data ?? [];
+      const dispatchedDeliveryMissing = Boolean(
+        dispatchedEventId &&
+          Date.now() < dispatchedEventPollUntil &&
+          !queryDeliveries.some(
+            (delivery) => delivery.event_id === dispatchedEventId
+          )
+      );
+
+      return hasPendingEvents(recentEvents) || dispatchedDeliveryMissing
+        ? RECENT_ACTIVITY_POLL_MS
+        : false;
+    },
+  });
+  const recentDeliveries = deliveriesQuery.data ?? deliveries;
 
   const handleCopyUrl = () => {
     navigator.clipboard.writeText(webhook.url);
@@ -196,18 +260,27 @@ export function WebhookDetailPage({
           </div>
         </div>
 
-        <Form method="post" className="shrink-0">
-          <input type="hidden" name="intent" value="delete" />
-          <Button
-            variant="outline"
-            size="sm"
-            type="submit"
-            className="text-red-600 hover:text-red-600"
-          >
-            <Trash2 className="h-4 w-4" />
-            Delete
+        <div className="flex shrink-0 items-center gap-2">
+          <Button asChild variant="outline" size="sm">
+            <Link to={`/webhooks/${webhook.id}/edit`}>
+              <Edit className="h-4 w-4" />
+              Edit
+            </Link>
           </Button>
-        </Form>
+
+          <Form method="post">
+            <input type="hidden" name="intent" value="delete" />
+            <Button
+              variant="outline"
+              size="sm"
+              type="submit"
+              className="text-red-600 hover:text-red-600"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete
+            </Button>
+          </Form>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -234,7 +307,7 @@ export function WebhookDetailPage({
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-semibold tracking-tight tabular-nums">
-              {events.length}
+              {recentEvents.length}
             </p>
           </CardContent>
         </Card>
@@ -248,7 +321,7 @@ export function WebhookDetailPage({
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-semibold tracking-tight tabular-nums">
-              {deliveries.length}
+              {recentDeliveries.length}
             </p>
           </CardContent>
         </Card>
@@ -477,7 +550,7 @@ export function WebhookDetailPage({
         </CardHeader>
 
         <CardContent>
-          {events.length > 0 ? (
+          {recentEvents.length > 0 ? (
             <div className="overflow-hidden rounded-xl border">
               <Table>
                 <TableHeader>
@@ -498,7 +571,7 @@ export function WebhookDetailPage({
                 </TableHeader>
 
                 <TableBody>
-                  {events.map((event) => {
+                  {recentEvents.map((event) => {
                     const status = getEventStatusStyles(event.status);
 
                     return (
@@ -561,7 +634,7 @@ export function WebhookDetailPage({
         </CardHeader>
 
         <CardContent>
-          {deliveries.length > 0 ? (
+          {recentDeliveries.length > 0 ? (
             <div className="overflow-hidden rounded-xl border">
               <Table>
                 <TableHeader>
@@ -582,7 +655,7 @@ export function WebhookDetailPage({
                 </TableHeader>
 
                 <TableBody>
-                  {deliveries.map((delivery) => (
+                  {recentDeliveries.map((delivery) => (
                     <TableRow
                       key={delivery.id}
                       className="hover:bg-muted/30 transition-colors"

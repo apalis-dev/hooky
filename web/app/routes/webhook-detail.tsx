@@ -5,7 +5,6 @@ import {
   getWebhookEventTypes,
   getWebhookEvents,
   getWebhookDeliveries,
-  getEvent,
   updateWebhook,
   deleteWebhook,
   createEventType,
@@ -23,7 +22,6 @@ import { WebhookDetailPage } from "@/components/pages/webhook-detail";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
-const PENDING_EVENT_STATUSES = new Set(["sending", "submitting"]);
 const webhookStatusSchema = z.enum(["active", "disabled", "paused"]);
 const eventTypeNameSchema = z.string().trim().min(1, "Event name is required.");
 const dispatchSchema = z.object({
@@ -43,20 +41,6 @@ const dispatchSchema = z.object({
       }
     }),
 });
-
-async function waitForEventToSettle(eventId: string) {
-  for (let attempt = 0; attempt < 8; attempt++) {
-    const event = await getEvent(eventId);
-
-    if (!PENDING_EVENT_STATUSES.has(event.status)) {
-      return event;
-    }
-
-    await new Promise((resolve) => window.setTimeout(resolve, 500));
-  }
-
-  return getEvent(eventId);
-}
 
 export async function clientLoader({ params }: { params: { id: string } }) {
   const [webhook, eventTypes, events, deliveries] = await Promise.all([
@@ -131,8 +115,11 @@ export async function clientAction({
       event_type: result.data.eventType,
       payload: result.data.payload,
     });
-    const event = await waitForEventToSettle(dispatched.event_id);
-    return { ok: true, event };
+    return {
+      ok: true,
+      eventId: dispatched.event_id,
+      pollUntil: Date.now() + 10_000,
+    };
   }
 
   return { ok: false };
