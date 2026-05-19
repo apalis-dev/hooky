@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
 	DropdownMenu,
@@ -21,6 +21,7 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { cn } from "@/lib/utils";
 
 const routeLabels: Record<string, string> = {
 	"/": "Overview",
@@ -122,13 +123,16 @@ export function TopNav() {
 						<span className="sr-only">Toggle theme</span>
 					</Button>
 				)}
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button variant="ghost" className="relative h-8 w-8 rounded-full">
-							<Avatar className="h-8 w-8">
-								<AvatarFallback>A</AvatarFallback>
-							</Avatar>
-						</Button>
+				<DropdownMenu modal={false}>
+					<DropdownMenuTrigger
+						className={cn(
+							buttonVariants({ variant: "ghost" }),
+							"relative h-8 w-8 rounded-full",
+						)}
+					>
+						<Avatar className="h-8 w-8">
+							<AvatarFallback>A</AvatarFallback>
+						</Avatar>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
 						<DropdownMenuItem>

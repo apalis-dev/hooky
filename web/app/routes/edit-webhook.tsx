@@ -1,14 +1,23 @@
 import { redirect } from "react-router";
 import { z } from "zod";
-import { createWebhook } from "@/lib/api";
-import { CreateWebhookPage } from "@/components/pages/create-webhook";
+import { getWebhook, updateWebhook } from "@/lib/api";
+import type { Webhook } from "@/lib/types";
+import { EditWebhookPage } from "@/components/pages/edit-webhook";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
-const createWebhookSchema = z.object({
+const editWebhookSchema = z.object({
 	name: z.string().trim().min(1, "Name is required."),
 	url: z.string().trim().url("Enter a valid URL."),
 });
+
+function requireWebhookId(params: { id?: string }) {
+	if (!params.id) {
+		throw new Response("Webhook ID is required.", { status: 400 });
+	}
+
+	return params.id;
+}
 
 export function HydrateFallback() {
 	return (
@@ -16,7 +25,7 @@ export function HydrateFallback() {
 			<div className="flex items-start gap-4">
 				<Skeleton className="h-10 w-10 mt-1" />
 				<div className="space-y-1">
-					<Skeleton className="h-9 w-48" />
+					<Skeleton className="h-9 w-44" />
 					<Skeleton className="h-5 w-80" />
 				</div>
 			</div>
@@ -46,9 +55,21 @@ export function HydrateFallback() {
 	);
 }
 
-export async function clientAction({ request }: { request: Request }) {
+export async function clientLoader({ params }: { params: { id?: string } }) {
+	const webhook = await getWebhook(requireWebhookId(params));
+	return { webhook };
+}
+
+export async function clientAction({
+	request,
+	params,
+}: {
+	request: Request;
+	params: { id?: string };
+}) {
+	const webhookId = requireWebhookId(params);
 	const formData = await request.formData();
-	const result = createWebhookSchema.safeParse({
+	const result = editWebhookSchema.safeParse({
 		name: formData.get("name"),
 		url: formData.get("url"),
 	});
@@ -57,10 +78,14 @@ export async function clientAction({ request }: { request: Request }) {
 		return { ok: false, error: result.error.issues[0]?.message };
 	}
 
-	await createWebhook(result.data);
-	return redirect("/webhooks");
+	await updateWebhook(webhookId, result.data);
+	return redirect(`/webhooks/${webhookId}`);
 }
 
-export default function CreateWebhook() {
-	return <CreateWebhookPage />;
+export default function EditWebhook({
+	loaderData,
+}: {
+	loaderData: { webhook: Webhook };
+}) {
+	return <EditWebhookPage webhook={loaderData.webhook} />;
 }

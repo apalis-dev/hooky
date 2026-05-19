@@ -90,7 +90,7 @@ pub async fn get_webhook_deliveries(
 #[utoipa::path(
     get,
     path = "/api/v1/deliveries/{id}",
-    params(("id" = i64, Path, description = "Delivery ID")),
+    params(("id" = String, Path, description = "Delivery ID")),
     responses(
         (status = 200, description = "Delivery", body = Delivery),
         (status = 404, description = "Not found")
@@ -99,7 +99,7 @@ pub async fn get_webhook_deliveries(
 )]
 pub async fn get_delivery(
     State(state): State<AppState>,
-    Path(id): Path<i64>,
+    Path(id): Path<String>,
 ) -> Result<Json<Delivery>, StatusCode> {
     let delivery = sqlx::query_as::<_, Delivery>("SELECT * FROM deliveries WHERE id = ?")
         .bind(id)

@@ -1,191 +1,184 @@
-import { useNavigate, useParams } from "react-router";
-import { ArrowLeft } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router";
+import { ArrowLeft, Clock, Hash, Send, Server } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import type { Delivery } from "@/lib/types";
 
-// TODO: replace with API fetch by ID
-const deliveries: Record<string, any> = {
-	"1": {
-		id: 1,
-		event: "user.created",
-		status: 200,
-		duration: "145ms",
-		timestamp: "2025-12-08 14:32:00",
-		success: true,
-	},
-	"2": {
-		id: 2,
-		event: "order.completed",
-		status: 200,
-		duration: "234ms",
-		timestamp: "2025-12-08 14:31:15",
-		success: true,
-	},
-	"3": {
-		id: 3,
-		event: "payment.failed",
-		status: 500,
-		duration: "156ms",
-		timestamp: "2025-12-08 14:28:42",
-		success: false,
-	},
-	"4": {
-		id: 4,
-		event: "user.updated",
-		status: 200,
-		duration: "89ms",
-		timestamp: "2025-12-08 14:25:00",
-		success: true,
-	},
-	"5": {
-		id: 5,
-		event: "invoice.generated",
-		status: 202,
-		duration: "512ms",
-		timestamp: "2025-12-08 14:22:30",
-		success: true,
-	},
+interface DeliveryDetailPageProps {
+  delivery: Delivery;
+}
+
+const getDeliveryStatusStyles = (success: boolean) => {
+  if (success) {
+    return {
+      dot: "bg-emerald-500",
+      text: "text-emerald-600",
+      label: "Success",
+    };
+  }
+
+  return {
+    dot: "bg-red-500",
+    text: "text-red-600",
+    label: "Failed",
+  };
 };
 
-export function DeliveryDetailPage() {
-	const navigate = useNavigate();
-	const { id } = useParams();
-	const delivery = id ? deliveries[id] : null;
+export function DeliveryDetailPage({ delivery }: DeliveryDetailPageProps) {
+  const navigate = useNavigate();
+  const status = getDeliveryStatusStyles(delivery.success);
 
-	if (!delivery) {
-		return (
-			<div className="p-8 space-y-6">
-				<div className="flex items-center gap-4">
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={() => navigate("/deliveries")}
-					>
-						<ArrowLeft className="h-4 w-4" />
-						<span className="sr-only">Back to deliveries</span>
-					</Button>
-					<h1 className="text-3xl font-semibold text-foreground">
-						Delivery Not Found
-					</h1>
-				</div>
-				<p className="text-muted-foreground">
-					The delivery you're looking for doesn't exist.
-				</p>
-			</div>
-		);
-	}
+  return (
+    <div className="mx-auto max-w-5xl px-6 py-8 space-y-8">
+      <div className="flex items-start gap-4">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => navigate("/deliveries")}
+          className="mt-1 shrink-0 rounded-full bg-background"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span className="sr-only">Back to deliveries</span>
+        </Button>
 
-	return (
-		<div className="p-8 space-y-6">
-			<div className="flex items-center gap-4">
-				<Button
-					variant="ghost"
-					size="icon"
-					onClick={() => navigate("/deliveries")}
-				>
-					<ArrowLeft className="h-4 w-4" />
-					<span className="sr-only">Back to deliveries</span>
-				</Button>
-				<div>
-					<h1 className="text-3xl font-semibold text-foreground">
-						Delivery Details
-					</h1>
-					<p className="text-muted-foreground">{delivery.event}</p>
-				</div>
-			</div>
+        <div className="min-w-0 space-y-2">
+          <div className="flex items-center gap-2">
+            <h1 className="text-3xl font-semibold tracking-tight">
+              Delivery Details
+            </h1>
 
-			<div className="max-w-2xl space-y-6">
-				<Card>
-					<CardHeader>
-						<CardTitle>Event Information</CardTitle>
-					</CardHeader>
-					<CardContent className="space-y-4 text-sm">
-						<div className="grid grid-cols-2 gap-4">
-							<div>
-								<p className="text-muted-foreground">Event Name</p>
-								<p className="text-foreground font-medium">{delivery.event}</p>
-							</div>
-							<div>
-								<p className="text-muted-foreground">Status Code</p>
-								<Badge variant="outline">{delivery.status}</Badge>
-							</div>
-							<div>
-								<p className="text-muted-foreground">Duration</p>
-								<p className="text-foreground font-medium">
-									{delivery.duration}
-								</p>
-							</div>
-							<div>
-								<p className="text-muted-foreground">Timestamp</p>
-								<p className="text-foreground font-medium">
-									{delivery.timestamp}
-								</p>
-							</div>
-						</div>
-					</CardContent>
-				</Card>
+            <div className="flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs">
+              <span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} />
+              <span className={status.text}>{status.label}</span>
+            </div>
+          </div>
 
-				<Card>
-					<CardHeader>
-						<CardTitle className="text-sm">Request Payload</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<pre className="text-xs text-muted-foreground overflow-x-auto">
-							{`{
-  "id": "evt_123456",
-  "event": "${delivery.event}",
-  "timestamp": "${delivery.timestamp}",
-  "data": {
-    "userId": "user_789",
-    "email": "user@example.com"
-  }
+          <p className="truncate font-mono text-xs text-muted-foreground">
+            {delivery.id}
+          </p>
+        </div>
+      </div>
+
+      <div className="max-w-5xl space-y-6">
+        <Card className="rounded-2xl">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-medium">
+              Delivery Information
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Runtime metadata for this delivery attempt
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="rounded-xl border p-4">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Server className="h-4 w-4" strokeWidth={1.5} />
+                  <span>Status</span>
+                </div>
+
+                <div className="mt-3 flex items-center gap-2 text-sm">
+                  <span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} />
+                  <span className={status.text}>
+                    HTTP {delivery.status_code ?? "Failed"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="rounded-xl border p-4">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Clock className="h-4 w-4" strokeWidth={1.5} />
+                  <span>Duration</span>
+                </div>
+
+                <p className="mt-2 text-2xl font-semibold tracking-tight tabular-nums">
+                  {delivery.duration_ms}ms
+                </p>
+              </div>
+
+              <div className="rounded-xl border p-4">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Send className="h-4 w-4" strokeWidth={1.5} />
+                  <span>Result</span>
+                </div>
+
+                <p className={`mt-3 text-sm font-medium ${status.text}`}>
+                  {status.label}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="rounded-xl border px-4 py-3">
+                <p className="text-xs text-muted-foreground">Timestamp</p>
+                <p className="mt-1 font-mono text-sm text-foreground">
+                  {delivery.timestamp}
+                </p>
+              </div>
+
+              <div className="rounded-xl border px-4 py-3">
+                <p className="text-xs text-muted-foreground">Event ID</p>
+                <p className="mt-1 break-all font-mono text-xs text-muted-foreground">
+                  {delivery.event_id}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-2xl">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-medium">
+              Request Payload
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Payload metadata sent with this delivery
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent>
+            <div className="overflow-hidden rounded-xl border bg-muted/20">
+              <div className="flex items-center justify-between border-b px-4 py-2">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Hash className="h-3.5 w-3.5" strokeWidth={1.5} />
+                  <span>JSON</span>
+                </div>
+              </div>
+
+              <pre className="overflow-x-auto p-4 text-xs text-muted-foreground">
+                {`{
+  "delivery_id": "${delivery.id}",
+  "event_id": "${delivery.event_id}",
+  "timestamp": "${delivery.timestamp}"
 }`}
-						</pre>
-					</CardContent>
-				</Card>
+              </pre>
+            </div>
+          </CardContent>
+        </Card>
 
-				<Card>
-					<CardHeader>
-						<CardTitle className="text-sm">Response Payload</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<pre className="text-xs text-muted-foreground overflow-x-auto">
-							{`{
-  "received": true,
-  "id": "evt_123456"
-}`}
-						</pre>
-					</CardContent>
-				</Card>
-
-				<Separator />
-
-				<div>
-					<h3 className="text-sm font-semibold text-foreground mb-3">
-						Retries
-					</h3>
-					<Card>
-						<CardContent className="flex items-center gap-3 pt-4">
-							<Badge variant="success">Success</Badge>
-							<div>
-								<p className="text-sm text-foreground font-medium">
-									Attempt 1
-								</p>
-								<p className="text-xs text-muted-foreground">
-									2025-12-08 14:32:00
-								</p>
-							</div>
-						</CardContent>
-					</Card>
-				</div>
-			</div>
-		</div>
-	);
+        <div className="rounded-2xl border border-dashed p-4">
+          <p className="text-sm font-medium">Delivery Status</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            This delivery{" "}
+            {delivery.success ? "completed successfully" : "failed"} with{" "}
+            <span className="font-mono">
+              HTTP {delivery.status_code ?? "N/A"}
+            </span>{" "}
+            in{" "}
+            <span className="font-mono tabular-nums">
+              {delivery.duration_ms}ms
+            </span>
+            .
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 }

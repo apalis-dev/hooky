@@ -27,7 +27,7 @@ pub struct UpsertSettings {
 #[utoipa::path(
     get,
     path = "/api/v1/event-types/{id}/settings",
-    params(("id" = i64, Path, description = "Event type ID")),
+    params(("id" = String, Path, description = "Event type ID")),
     responses(
         (status = 200, description = "Settings for event type", body = Settings),
         (status = 404, description = "No settings found for event type")
@@ -36,10 +36,10 @@ pub struct UpsertSettings {
 )]
 pub async fn get_event_type_settings(
     State(state): State<AppState>,
-    Path(event_type_id): Path<i64>,
+    Path(event_type_id): Path<String>,
 ) -> Result<Json<Settings>, StatusCode> {
     let settings = sqlx::query_as::<_, Settings>("SELECT * FROM settings WHERE event_type_id = ?")
-        .bind(event_type_id)
+        .bind(&event_type_id)
         .fetch_one(&state.pool)
         .await
         .map_err(|_| StatusCode::NOT_FOUND)?;
@@ -49,7 +49,7 @@ pub async fn get_event_type_settings(
 #[utoipa::path(
     put,
     path = "/api/v1/event-types/{id}/settings",
-    params(("id" = i64, Path, description = "Event type ID")),
+    params(("id" = String, Path, description = "Event type ID")),
     request_body = UpsertSettings,
     responses(
         (status = 200, description = "Upserted settings", body = Settings)
@@ -58,7 +58,7 @@ pub async fn get_event_type_settings(
 )]
 pub async fn upsert_event_type_settings(
     State(state): State<AppState>,
-    Path(event_type_id): Path<i64>,
+    Path(event_type_id): Path<String>,
     Json(payload): Json<UpsertSettings>,
 ) -> Result<Json<Settings>, StatusCode> {
     let setting_id = generate_id("ST");

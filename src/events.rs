@@ -89,7 +89,7 @@ pub async fn get_webhook_events(
 #[utoipa::path(
     get,
     path = "/api/v1/events/{id}",
-    params(("id" = i64, Path, description = "Event ID")),
+    params(("id" = String, Path, description = "Event ID")),
     responses(
         (status = 200, description = "Event", body = Event),
         (status = 404, description = "Not found")
@@ -98,7 +98,7 @@ pub async fn get_webhook_events(
 )]
 pub async fn get_event(
     State(state): State<AppState>,
-    Path(id): Path<i64>,
+    Path(id): Path<String>,
 ) -> Result<Json<Event>, StatusCode> {
     let event = sqlx::query_as::<_, Event>("SELECT * FROM events WHERE id = ?")
         .bind(id)
