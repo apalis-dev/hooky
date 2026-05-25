@@ -1,9 +1,14 @@
 export interface Log {
-  id: number;
-  webhook_id: string | undefined;
+  id: string;
+  webhook_id: string | null;
   level: string;
-  timestamp: string;
   message: string;
+  target: string;
+  timestamp: string;
+}
+
+export interface LogWithWebhook extends Log {
+  webhook_name: string | null;
 }
 
 export interface Webhook {

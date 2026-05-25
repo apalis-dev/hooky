@@ -1,5 +1,5 @@
-import { getLogs } from "@/lib/api";
-import type { Log } from "@/lib/types";
+import { getLogs, getWebhooks } from "@/lib/api";
+import type { LogWithWebhook } from "@/lib/types";
 import { LogsPage } from "@/components/pages/logs";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -9,8 +9,22 @@ export async function clientLoader({ request }: { request: Request }) {
   const url = new URL(request.url);
   const page = Number(url.searchParams.get("page")) || 0;
   const limit = Number(url.searchParams.get("limit")) || DEFAULT_LIMIT;
-  const logs = await getLogs({ page, limit });
-  return { logs, page, limit };
+  const [logs, webhooks] = await Promise.all([
+    getLogs({ page, limit }),
+    getWebhooks({ limit: 200 }),
+  ]);
+  const webhookNames = new Map(
+    webhooks.map((webhook) => [webhook.id, webhook.name])
+  );
+
+  const logsWithWebhooks: LogWithWebhook[] = logs.map((log) => ({
+    ...log,
+    webhook_name: log.webhook_id
+      ? webhookNames.get(log.webhook_id) ?? "Deleted webhook"
+      : null,
+  }));
+
+  return { logs: logsWithWebhooks, page, limit };
 }
 
 export function HydrateFallback() {
@@ -39,7 +53,7 @@ export function HydrateFallback() {
 export default function Logs({
   loaderData,
 }: {
-  loaderData: { logs: Log[]; page: number; limit: number };
+  loaderData: { logs: LogWithWebhook[]; page: number; limit: number };
 }) {
   return (
     <LogsPage

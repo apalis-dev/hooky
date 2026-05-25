@@ -1,5 +1,5 @@
 import { Form, useActionData, useNavigate, useNavigation } from "react-router";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import type { Webhook } from "@/lib/types";
+import { Spinner } from "../ui/spinner";
 
 interface EditWebhookPageProps {
   webhook: Webhook;
@@ -104,7 +105,15 @@ export function EditWebhookPage({ webhook }: EditWebhookPageProps) {
                 Cancel
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : "Save Changes"}
+                {isSubmitting ? (
+                  <>
+                    <Spinner className="mr-2 h-4 w-4 animate-spin" /> Saving
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" /> Save Changes
+                  </>
+                )}
               </Button>
             </CardFooter>
           </Card>

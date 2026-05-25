@@ -9,7 +9,7 @@ export function LogsFilter({ logLevel, onLogLevelChange }: LogsFilterProps) {
 	return (
 		<Tabs value={logLevel} onValueChange={onLogLevelChange}>
 			<TabsList className=" justify-start p-1">
-				{["all", "info", "warn", "error"].map((level) => (
+				{["all", "debug", "info", "warn", "error"].map((level) => (
 					<TabsTrigger
 						key={level}
 						value={level}
