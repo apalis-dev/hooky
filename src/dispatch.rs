@@ -86,7 +86,7 @@ pub async fn dispatch(
         event_type_id: event_type.id,
         payload: request.payload,
     })
-    .with_task_id(task_id.clone())
+    .with_task_id(task_id)
     .build();
 
     state
