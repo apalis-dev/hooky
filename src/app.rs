@@ -7,7 +7,8 @@ use utoipa_axum::{router::OpenApiRouter, routes};
 use utoipa_swagger_ui::SwaggerUi;
 
 use crate::{
-    deliveries::*, dispatch::*, event_types::*, events::*, helpers::shutdown_signal, logs::*, settings::*, webhooks::*, worker::TaskStorage
+    deliveries::*, dispatch::*, event_types::*, events::*, helpers::shutdown_signal, logs::*,
+    settings::*, webhooks::*, worker::TaskStorage,
 };
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
@@ -30,11 +31,11 @@ impl PaginationParams {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct AppState {
     pub pool: SqlitePool,
     pub http: reqwest::Client,
-    pub storage: TaskStorage
+    pub storage: TaskStorage,
 }
 
 #[derive(OpenApi)]
@@ -105,10 +106,9 @@ pub fn router(state: AppState) -> Router {
         .layer(TraceLayer::new_for_http())
         .split_for_parts();
 
-    let app = router
+    router
         .merge(SwaggerUi::new("/api/v1/swagger-ui").url("/api/v1/openapi.json", api))
-        .layer(CorsLayer::permissive());
-    app
+        .layer(CorsLayer::permissive())
 }
 
 pub async fn http(state: AppState) -> anyhow::Result<()> {

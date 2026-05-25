@@ -1,8 +1,11 @@
-use axum::{Json, extract::{Query, State}};
+use crate::{app::PaginationParams, helpers::generate_id};
+use axum::{
+    Json,
+    extract::{Query, State},
+};
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
-use crate::{app::PaginationParams, helpers::generate_id};
 
 use crate::app::AppState;
 
@@ -12,14 +15,16 @@ pub struct Log {
     webhook_id: Option<String>,
     level: String,
     message: String,
+    target: String,
     timestamp: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct CreateLog {
-    webhook_id: Option<String>,
-    level: String,
-    message: String,
+    pub webhook_id: Option<String>,
+    pub level: String,
+    pub message: String,
+    pub target: String,
 }
 
 #[utoipa::path(
@@ -46,8 +51,6 @@ pub async fn get_logs(
     Ok(Json(logs))
 }
 
-
-
 #[utoipa::path(
     post,
     path = "/api/v1/logs",
@@ -63,14 +66,17 @@ pub async fn create_log(
 ) -> Result<StatusCode, StatusCode> {
     let log_id = generate_id("LG");
     let timestamp = chrono::Utc::now().format("%Y-%m-%d %H:%M:%S").to_string();
-    sqlx::query("INSERT INTO logs (id, webhook_id, level, message, timestamp) VALUES (?, ?, ?, ?, ?)")
-        .bind(log_id)
-        .bind(&payload.webhook_id)
-        .bind(&payload.level)
-        .bind(&payload.message)
-        .bind(&timestamp)
-        .execute(&state.pool)
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    sqlx::query(
+        "INSERT INTO logs (id, webhook_id, level, message, target, timestamp) VALUES (?, ?, ?, ?, ?, ?)",
+    )
+    .bind(log_id)
+    .bind(&payload.webhook_id)
+    .bind(&payload.level)
+    .bind(&payload.message)
+    .bind(&payload.target)
+    .bind(&timestamp)
+    .execute(&state.pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     Ok(StatusCode::CREATED)
 }

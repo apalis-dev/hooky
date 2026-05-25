@@ -7,7 +7,10 @@ use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
 use crate::{
-    app::{AppState, PaginationParams}, event_types::EventType, helpers::generate_id, logs::Log
+    app::{AppState, PaginationParams},
+    event_types::EventType,
+    helpers::generate_id,
+    logs::Log,
 };
 
 #[derive(Debug, Serialize, Deserialize, sqlx::FromRow, ToSchema)]

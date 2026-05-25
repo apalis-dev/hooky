@@ -21,13 +21,12 @@ pub fn migrator() -> Migrator {
 
     migrations.sort_by_key(|m| m.version);
 
-    let migrator = Migrator {
+    Migrator {
         migrations: Cow::Owned(migrations),
         ignore_missing: false,
         locking: true,
         no_tx: false,
-    };
-    migrator
+    }
 }
 
 pub async fn shutdown_signal() {
