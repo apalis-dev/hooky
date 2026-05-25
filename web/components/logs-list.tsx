@@ -1,4 +1,5 @@
 import { FileText } from "lucide-react";
+import { Link } from "react-router";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -30,7 +31,7 @@ interface LogsListProps {
   logs: LogWithWebhook[];
 }
 
-function truncate(value: string, maxLength = 32) {
+function truncate(value: string, maxLength = 28) {
   return value.length > maxLength
     ? `${value.slice(0, maxLength - 1)}...`
     : value;
@@ -70,42 +71,54 @@ export function LogsList({ logs }: LogsListProps) {
                 key={log.id}
                 className="group border-border/60 transition-colors hover:bg-muted/35"
               >
-                <TableCell className="w-4 py-4 pl-4 pr-2 align-top">
+                <TableCell className="w-4 py-3 pl-4 pr-2">
                   <span
-                    className={`mt-1.5 inline-block h-2 w-2 rounded-full ${
+                    className={`inline-block h-2 w-2 rounded-full ${
                       levelDot[log.level] ?? "bg-muted-foreground/70"
                     }`}
                   />
                 </TableCell>
 
-                <TableCell className="w-[125px] py-4 align-top text-xs text-muted-foreground/70">
-                  {log.timestamp}
+                <TableCell className="w-[125px] max-w-[125px] py-3 text-xs text-muted-foreground/70">
+                  <span className="block truncate" title={log.timestamp}>
+                    {log.timestamp}
+                  </span>
                 </TableCell>
 
-                <TableCell className="w-[220px] py-4 align-top">
-                  <div className="flex min-w-0 flex-col gap-1">
-                    <span className="truncate text-sm font-medium text-foreground">
-                      {log.webhook_name ? truncate(log.webhook_name) : "System"}
-                    </span>
-
-                    <span className="truncate font-mono text-xs text-muted-foreground/70">
-                      {log.target}
-                    </span>
-                  </div>
-                </TableCell>
-
-                <TableCell className="py-4 pr-4 align-top">
-                  <div className="flex min-w-0 flex-col gap-1.5">
-                    <p className="text-sm leading-5 text-foreground">
-                      {log.message}
-                    </p>
-
-                    <span
-                      className={`w-fit rounded-md bg-muted px-1.5 py-0.5 ${levelText[log.level]} font-mono text-[10px] uppercase tracking-wide`}
+                <TableCell className="w-[170px] max-w-[170px] py-3">
+                  {log.webhook_id && log.webhook_name ? (
+                    <Link
+                      to={`/webhooks/${log.webhook_id}`}
+                      title={log.webhook_name}
+                      className="block truncate text-sm font-medium text-foreground hover:underline"
                     >
-                      {log.level}
+                      {truncate(log.webhook_name)}
+                    </Link>
+                  ) : (
+                    <span className="block truncate text-sm font-medium text-foreground">
+                      System
                     </span>
-                  </div>
+                  )}
+                </TableCell>
+
+                <TableCell className="w-[210px] max-w-[210px] py-3 font-mono text-xs text-muted-foreground/70">
+                  <span className="block truncate" title={log.target}>
+                    {log.target}
+                  </span>
+                </TableCell>
+
+                <TableCell className="w-[68px] py-3">
+                  <span
+                    className={`rounded-md bg-muted px-1.5 py-0.5 ${levelText[log.level]} font-mono text-[10px] uppercase tracking-wide`}
+                  >
+                    {log.level}
+                  </span>
+                </TableCell>
+
+                <TableCell className="max-w-0 py-3 pr-4 text-sm text-foreground">
+                  <span className="block truncate" title={log.message}>
+                    {log.message}
+                  </span>
                 </TableCell>
               </TableRow>
             ))}
