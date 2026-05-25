@@ -1,10 +1,17 @@
-import { redirect } from "react-router";
+import { data, redirect, useParams } from "react-router";
 import { z } from "zod";
-import { getWebhook, getSettings, updateSettings } from "@/lib/api";
+import {
+	ApiError,
+	getWebhook,
+	getWebhookEventTypes,
+	getSettings,
+	updateSettings,
+} from "@/lib/api";
 import {
 	EventSettingsPage,
 	type EventSettingsValues,
 } from "@/components/pages/event-settings";
+import { RouteErrorBoundary } from "@/components/route-error-boundary";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
@@ -34,16 +41,26 @@ async function loadSettings(eventTypeId: string): Promise<EventSettingsValues> {
 			enabled: settings.enabled,
 			persisted: true,
 		};
-	} catch {
-		return defaultSettings(eventTypeId);
+	} catch (error) {
+		if (error instanceof ApiError && error.status === 404) {
+			return defaultSettings(eventTypeId);
+		}
+
+		throw error;
 	}
 }
 
 export async function clientLoader({ params }: { params: { webhookId: string; eventTypeId: string } }) {
-	const [webhook, settings] = await Promise.all([
+	const [webhook, eventTypes] = await Promise.all([
 		getWebhook(params.webhookId),
-		loadSettings(params.eventTypeId),
+		getWebhookEventTypes(params.webhookId),
 	]);
+
+	if (!eventTypes.some((eventType) => eventType.id === params.eventTypeId)) {
+		throw data("Event type not found.", { status: 404 });
+	}
+
+	const settings = await loadSettings(params.eventTypeId);
 	return { webhook, settings };
 }
 
@@ -59,8 +76,30 @@ export async function clientAction({ request, params }: { request: Request; para
 		return { ok: false, error: result.error.issues[0]?.message };
 	}
 
-	await updateSettings(params.eventTypeId, result.data);
+	try {
+		await updateSettings(params.eventTypeId, result.data);
+	} catch (error) {
+		if (error instanceof ApiError && error.status === 404) {
+			throw data("Event type not found.", { status: 404 });
+		}
+
+		throw error;
+	}
+
 	return redirect(`/webhooks/${params.webhookId}`);
+}
+
+export function ErrorBoundary() {
+	const params = useParams();
+
+	return (
+		<RouteErrorBoundary
+			backLabel="Back to webhook"
+			backTo={params.webhookId ? `/webhooks/${params.webhookId}` : "/webhooks"}
+			notFoundMessage="That event type does not exist for this webhook."
+			notFoundTitle="Event type not found"
+		/>
+	);
 }
 
 export function HydrateFallback() {

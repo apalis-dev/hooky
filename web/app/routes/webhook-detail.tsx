@@ -19,6 +19,7 @@ import type {
   Settings,
 } from "@/lib/types";
 import { WebhookDetailPage } from "@/components/pages/webhook-detail";
+import { RouteErrorBoundary } from "@/components/route-error-boundary";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
@@ -173,4 +174,15 @@ export default function WebhookDetail({
   };
 }) {
   return <WebhookDetailPage {...loaderData} />;
+}
+
+export function ErrorBoundary() {
+  return (
+    <RouteErrorBoundary
+      backLabel="Back to webhooks"
+      backTo="/webhooks"
+      notFoundMessage="That webhook does not exist or may have been deleted."
+      notFoundTitle="Webhook not found"
+    />
+  );
 }

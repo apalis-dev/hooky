@@ -70,7 +70,7 @@ interface WebhookDetailPageProps {
 }
 
 const RECENT_ACTIVITY_LIMIT = 10;
-const RECENT_ACTIVITY_POLL_MS = 500;
+const RECENT_ACTIVITY_POLL_MS = 1_500;
 const PENDING_EVENT_STATUSES = new Set(["sending", "submitting"]);
 
 const hasPendingEvents = (events: Event[]) =>
