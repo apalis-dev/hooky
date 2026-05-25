@@ -1,4 +1,4 @@
-import { Link, useNavigate, useSearchParams } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { Plus, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { WebhookTable } from "../webhook-table";
@@ -7,121 +7,124 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-	Pagination,
-	PaginationContent,
-	PaginationItem,
-	PaginationNext,
-	PaginationPrevious,
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
 } from "@/components/ui/pagination";
 import type { Webhook } from "@/lib/types";
 
 interface WebhooksPageProps {
-	webhooks: Webhook[];
-	page: number;
-	limit: number;
+  webhooks: Webhook[];
+  page: number;
+  limit: number;
 }
 
 const STATUS_FILTERS = [
-	{ value: "all", label: "All" },
-	{ value: "active", label: "Active" },
-	{ value: "disabled", label: "Disabled" },
-	{ value: "paused", label: "Paused" },
+  { value: "all", label: "All" },
+  { value: "active", label: "Active" },
+  { value: "disabled", label: "Disabled" },
+  { value: "paused", label: "Paused" },
 ] as const;
 
 export function WebhooksPage({ webhooks, page, limit }: WebhooksPageProps) {
-	const [searchTerm, setSearchTerm] = useState("");
-	const [statusFilter, setStatusFilter] = useState("all");
-	const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const navigate = useNavigate();
 
-	const hasMore = webhooks.length === limit;
+  const hasMore = webhooks.length === limit;
 
-	const handlePrev = () => {
-		if (page > 0) {
-			navigate(`?page=${page - 1}&limit=${limit}`);
-		}
-	};
+  const handlePrev = () => {
+    if (page > 0) {
+      navigate(`?page=${page - 1}&limit=${limit}`);
+    }
+  };
 
-	const handleNext = () => {
-		if (hasMore) {
-			navigate(`?page=${page + 1}&limit=${limit}`);
-		}
-	};
+  const handleNext = () => {
+    if (hasMore) {
+      navigate(`?page=${page + 1}&limit=${limit}`);
+    }
+  };
 
-	const filtered = useMemo(() => {
-		return webhooks.filter((w) => {
-			const matchesStatus =
-				statusFilter === "all" || w.status === statusFilter;
-			const matchesSearch =
-				!searchTerm ||
-				w.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				w.url.toLowerCase().includes(searchTerm.toLowerCase());
-			return matchesStatus && matchesSearch;
-		});
-	}, [webhooks, statusFilter, searchTerm]);
+  const filtered = useMemo(() => {
+    return webhooks.filter((w) => {
+      const matchesStatus = statusFilter === "all" || w.status === statusFilter;
+      const matchesSearch =
+        !searchTerm ||
+        w.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        w.url.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesStatus && matchesSearch;
+    });
+  }, [webhooks, statusFilter, searchTerm]);
 
-	return (
-		<div className="mx-auto max-w-5xl px-6 py-8 space-y-6">
-			<div>
-				<h1 className="text-3xl font-semibold text-foreground mb-2">Hooky</h1>
-				<p className="text-muted-foreground">current webhooks</p>
-			</div>
-			<div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-				<div className="relative flex-1 max-w-md">
-					<Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-					<Input
-						type="text"
-						placeholder="Search webhooks..."
-						value={searchTerm}
-						onChange={(e) => setSearchTerm(e.target.value)}
-						className="pl-9"
-					/>
-				</div>
+  return (
+    <div className="mx-auto max-w-5xl px-6 py-8 space-y-6">
+      <div>
+        <h1 className="text-3xl font-semibold text-foreground mb-2">Hooky</h1>
+        <p className="text-muted-foreground">current webhooks</p>
+      </div>
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search webhooks..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9"
+          />
+        </div>
 
-				<Button asChild>
-					<Link to="/webhooks/new">
-						<Plus className="h-4 w-4" />
-						Create Webhook
-					</Link>
-				</Button>
-			</div>
-			<Tabs value={statusFilter} onValueChange={setStatusFilter}>
-				<TabsList>
-					{STATUS_FILTERS.map((filter) => (
-						<TabsTrigger key={filter.value} value={filter.value}>
-							{filter.label}
-						</TabsTrigger>
-					))}
-				</TabsList>
-			</Tabs>
-			<Card className="overflow-hidden">
-				<WebhookTable webhooks={filtered} />
-			</Card>
-			<Pagination>
-				<PaginationContent>
-					<PaginationItem>
-						<PaginationPrevious
-							href={`?page=${page - 1}&limit=${limit}`}
-							onClick={(e) => {
-								e.preventDefault();
-								handlePrev();
-							}}
-							aria-disabled={page === 0}
-							className={page === 0 ? "pointer-events-none opacity-50" : undefined}
-						/>
-					</PaginationItem>
-					<PaginationItem>
-						<PaginationNext
-							href={`?page=${page + 1}&limit=${limit}`}
-							onClick={(e) => {
-								e.preventDefault();
-								handleNext();
-							}}
-							aria-disabled={!hasMore}
-							className={!hasMore ? "pointer-events-none opacity-50" : undefined}
-						/>
-					</PaginationItem>
-				</PaginationContent>
-			</Pagination>
-		</div>
-	);
+        <Button asChild className="w-full sm:w-auto" variant="outline">
+          <Link to="/webhooks/new">
+            <Plus className="h-4 w-4" />
+            Create Webhook
+          </Link>
+        </Button>
+      </div>
+      <Tabs value={statusFilter} onValueChange={setStatusFilter}>
+        <TabsList>
+          {STATUS_FILTERS.map((filter) => (
+            <TabsTrigger key={filter.value} value={filter.value}>
+              {filter.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
+      <Card className="overflow-hidden">
+        <WebhookTable webhooks={filtered} />
+      </Card>
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              href={`?page=${page - 1}&limit=${limit}`}
+              onClick={(e) => {
+                e.preventDefault();
+                handlePrev();
+              }}
+              aria-disabled={page === 0}
+              className={
+                page === 0 ? "pointer-events-none opacity-50" : undefined
+              }
+            />
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationNext
+              href={`?page=${page + 1}&limit=${limit}`}
+              onClick={(e) => {
+                e.preventDefault();
+                handleNext();
+              }}
+              aria-disabled={!hasMore}
+              className={
+                !hasMore ? "pointer-events-none opacity-50" : undefined
+              }
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    </div>
+  );
 }

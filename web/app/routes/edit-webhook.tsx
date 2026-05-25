@@ -3,6 +3,7 @@ import { z } from "zod";
 import { getWebhook, updateWebhook } from "@/lib/api";
 import type { Webhook } from "@/lib/types";
 import { EditWebhookPage } from "@/components/pages/edit-webhook";
+import { RouteErrorBoundary } from "@/components/route-error-boundary";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
@@ -88,4 +89,15 @@ export default function EditWebhook({
 	loaderData: { webhook: Webhook };
 }) {
 	return <EditWebhookPage webhook={loaderData.webhook} />;
+}
+
+export function ErrorBoundary() {
+	return (
+		<RouteErrorBoundary
+			backLabel="Back to webhooks"
+			backTo="/webhooks"
+			notFoundMessage="That webhook does not exist or may have been deleted."
+			notFoundTitle="Webhook not found"
+		/>
+	);
 }

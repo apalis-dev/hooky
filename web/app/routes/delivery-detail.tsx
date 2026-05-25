@@ -1,6 +1,7 @@
 import { getDelivery } from "@/lib/api";
 import type { Delivery } from "@/lib/types";
 import { DeliveryDetailPage } from "@/components/pages/delivery-detail";
+import { RouteErrorBoundary } from "@/components/route-error-boundary";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -70,4 +71,15 @@ export default function DeliveryDetail({
 	loaderData: { delivery: Delivery };
 }) {
 	return <DeliveryDetailPage delivery={loaderData.delivery} />;
+}
+
+export function ErrorBoundary() {
+	return (
+		<RouteErrorBoundary
+			backLabel="Back to deliveries"
+			backTo="/deliveries"
+			notFoundMessage="That delivery does not exist or may have been removed."
+			notFoundTitle="Delivery not found"
+		/>
+	);
 }

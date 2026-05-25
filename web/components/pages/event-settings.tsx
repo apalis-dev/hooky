@@ -1,5 +1,5 @@
 import { Form, useActionData, useNavigate, useNavigation } from "react-router";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import type { Settings as SettingsType } from "@/lib/types";
+import { Spinner } from "../ui/spinner";
 
 export type EventSettingsValues = Pick<
   SettingsType,
@@ -155,8 +156,22 @@ export function EventSettingsPage({
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Saving..." : "Save Settings"}
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="cursor-pointer hover:bg-primary/80"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Spinner className="mr-2 h-4 w-4 animate-spin" />
+                      Saving
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-4 w-4" />
+                      Save Settings
+                    </>
+                  )}
                 </Button>
               </div>
             </Form>

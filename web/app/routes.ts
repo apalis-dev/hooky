@@ -18,5 +18,6 @@ export default [
 		route("events/:id", "routes/event-detail.tsx"),
 		route("logs", "routes/logs.tsx"),
 		route("settings", "routes/settings.tsx"),
+		route("*", "routes/not-found.tsx"),
 	]),
 ] satisfies RouteConfig;

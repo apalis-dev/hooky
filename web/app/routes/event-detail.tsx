@@ -1,6 +1,7 @@
-import { getEvent, getWebhookEvents } from "@/lib/api";
+import { getEvent } from "@/lib/api";
 import type { Event } from "@/lib/types";
 import { EventDetailPage } from "@/components/pages/event-detail";
+import { RouteErrorBoundary } from "@/components/route-error-boundary";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
@@ -46,4 +47,15 @@ export default function EventDetail({
 	loaderData: { event: Event };
 }) {
 	return <EventDetailPage event={loaderData.event} />;
+}
+
+export function ErrorBoundary() {
+	return (
+		<RouteErrorBoundary
+			backLabel="Back to webhooks"
+			backTo="/webhooks"
+			notFoundMessage="That event does not exist or may have been removed."
+			notFoundTitle="Event not found"
+		/>
+	);
 }
