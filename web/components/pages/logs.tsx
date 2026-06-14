@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
-import type { Log } from "@/lib/types";
+import type { LogWithWebhook } from "@/lib/types";
 import { LogsFilter } from "../logs-filter";
 import { LogsList } from "../logs-list";
 import {
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/pagination";
 
 interface LogsPageProps {
-	logs: Log[];
+	logs: LogWithWebhook[];
 	page: number;
 	limit: number;
 }

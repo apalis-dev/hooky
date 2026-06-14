@@ -129,7 +129,14 @@ export const dispatch = (data: { webhook_name: string; event_type: string; paylo
 // Logs
 export const getLogs = (params?: PaginationParams) =>
   get<Log[]>(`/logs${buildQuery(params)}`);
-export const createLog = (data: { level: string; message: string }) =>
+export const getWebhookLogs = (webhookId: string, params?: PaginationParams) =>
+  get<Log[]>(`/webhooks/${webhookId}/logs${buildQuery(params)}`);
+export const createLog = (data: {
+  level: string;
+  message: string;
+  target: string;
+  webhook_id?: string | null;
+}) =>
   post<void>("/logs", data);
 
 // Settings (per event type)
